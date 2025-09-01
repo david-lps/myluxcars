@@ -1,0 +1,1326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MYLUXCARS - Premium Car Rental in Orlando</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
+    <script src="https://unpkg.com/swiper@10/swiper-bundle.min.js"></script>
+       <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
+    <link rel="stylesheet" href="https://unpkg.com/swiper@10/swiper-bundle.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .gold-text {
+            color: #b8860b;
+        }
+        .gold-bg {
+            background-color: #b8860b;
+        }
+        .gold-border {
+            border-color: #b8860b;
+        }
+        .navy-bg {
+            background-color: #001f3f;
+        }
+        .navy-text {
+            color: #001f3f;
+        }
+        .navy-border {
+            border-color: #001f3f;
+        }
+        .hero-image {
+            background-image: linear-gradient(rgba(0, 31, 63, 0.7), rgba(0, 31, 63, 0.7)), url('https://imageio.forbes.com/specials-images/imageserve/665f5b2c1cef7d9f00a2186a/Mercedes-Maybach-EQS-680-is-the-most-useful-ultra-luxury-electric-vehicle-in-the-U-S-/0x0.jpg?format=jpg&crop=2025,1195,x575,y315,safe&width=960');
+            background-size: cover;
+            background-position: center;
+        }
+        .car-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        .transition-all {
+            transition: all 0.3s ease;
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.3s ease-out;
+        }
+        @keyframes fadeIn {
+            from {opacity: 0; transform: scale(0.95);}
+            to {opacity: 1; transform: scale(1);}
+        }
+
+        .animate-zoom { animation: zoomIn .22s ease-out }
+        @keyframes zoomIn {
+            from { opacity: 0; transform: translateY(6px) scale(.97) }
+            to   { opacity: 1; transform: translateY(0)    scale(1) }
+        }
+
+          .card-image::after{
+            content:"";
+            position:absolute;inset:0;
+            background:linear-gradient(to top, rgba(0,0,0,.25), rgba(0,0,0,0));
+            pointer-events:none;
+          }
+          .skeleton {
+            background: linear-gradient(90deg,#eee 25%,#f5f5f5 37%,#eee 63%);
+            background-size: 400% 100%;
+            animation: shimmer 1.4s ease infinite;
+          }
+          @keyframes shimmer {
+            0% { background-position: 100% 0; }
+            100%{ background-position: 0 0; }
+          }
+
+        /* Container do swiper precisa ser referência */
+        .mylux-fleet { position: relative; }
+
+        /* Forçar visibilidade das setas */
+        .mylux-fleet .swiper-button-prev,
+        .mylux-fleet .swiper-button-next { display: none !important; }
+
+        /* Ícones internos menores */
+        .mylux-fleet .swiper-button-prev::after,
+        .mylux-fleet .swiper-button-next::after {
+          font-size: 16px !important;  /* diminui tamanho */
+          font-weight: 700;
+          color: inherit;              /* usa o color do botão */
+        }
+
+        /* Hover */
+        .mylux-fleet .swiper-button-prev:hover,
+        .mylux-fleet .swiper-button-next:hover {
+          background: #e5e7eb;         /* gray-200 */
+          color: #374151;              /* gray-700 */
+        }
+
+        /* Estado desabilitado */
+        .mylux-fleet .swiper-button-disabled {
+          opacity: .4;
+          cursor: not-allowed;
+        }
+
+        /* Juntas no canto direito */
+        .mylux-fleet .swiper-button-next { right: 0; }
+        .mylux-fleet .swiper-button-prev { right: 42px; } /* largura + gap */
+
+        /* Responsivo */
+        @media (max-width: 640px) {
+          .mylux-fleet .swiper-button-prev,
+          .mylux-fleet .swiper-button-next {
+            top: -40px;
+            width: 30px;
+            height: 30px;
+          }
+          .mylux-fleet .swiper-button-prev { right: 36px; }
+        }
+
+        /* centraliza e dá espaço */
+        .mylux-fleet ~ .swiper-pagination {
+          position: static !important; /* tira do overlay */
+          margin-top: 1.5rem;          /* espaço abaixo dos cards */
+        }
+
+        /* estilo das bolinhas */
+        .swiper-pagination-bullet {
+          background: #d1d5db; /* gray-300 */
+          opacity: 1;
+        }
+        .swiper-pagination-bullet-active {
+          background: #b8860b; /* dourado */
+        }
+
+        .ios-scroll { -webkit-overflow-scrolling: touch; }
+        .pt-safe { padding-top: max(1rem, env(safe-area-inset-top)); }
+
+        /* Flatpickr: limitar largura dentro do modal */
+        #availabilityModal .flatpickr-calendar.inline {
+          width: 100% !important;
+          max-width: 100% !important;
+          box-sizing: border-box;
+        }
+
+        #availabilityModal .flatpickr-months,
+        #availabilityModal .flatpickr-weekdays,
+        #availabilityModal .flatpickr-days,
+        #availabilityModal .dayContainer,
+        #availabilityModal .flatpickr-rContainer {
+          width: 100% !important;
+          max-width: 100% !important;
+          box-sizing: border-box;
+        }
+
+        /* Ajuste de espaçamento no mobile para não “encostar” nas bordas */
+        @media (max-width: 640px) {
+          #availabilityModal .flatpickr-calendar {
+            padding: 0.25rem; /* ~4px */
+          }
+        }
+
+        @media (max-width: 640px) {
+          #availabilityModal .flatpickr-months .flatpickr-month,
+          #availabilityModal .flatpickr-weekday,
+          #availabilityModal .flatpickr-day {
+            font-size: 0.9rem;
+          }
+        }
+        
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="navy-bg text-white py-4 px-6 sticky top-0 z-50 shadow-md">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-car text-2xl gold-text"></i>
+                <span class="text-xl font-bold">MYLUX<span class="gold-text">CARS</span></span>
+            </div>
+            <div class="hidden md:flex space-x-6 items-center">
+                <a href="#fleet" class="hover:text-gold-500 transition-all">Our Fleet</a>
+                <a href="#" 
+                    onclick="openLocationsModal()"
+                    class="hover:text-gold-500 transition-all">
+                    Service Areas
+                </a>
+                <a href="#" 
+                     onclick="openBenefitsModal()" 
+                     cclass="hover:text-gold-500 transition-all">
+                    Why Us
+                </a>
+                <div class="flex space-x-2 ml-4">
+                    <button class="px-3 py-1 border border-white rounded hover:bg-white hover:navy-text transition-all">EN</button>
+                    <button class="px-3 py-1 border border-white rounded hover:bg-white hover:navy-text transition-all">PT</button>
+                    <button class="px-3 py-1 border border-white rounded hover:bg-white hover:navy-text transition-all">ES</button>
+                </div>
+            </div>
+            <button class="md:hidden text-xl">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-image text-white py-20 md:py-32 px-6">
+        <div class="container mx-auto text-center">
+            <h1 class="text-4xl md:text-6xl font-bold mb-6">Premium cars.<br>
+                Delivered to you - <span class="gold-text">anytime, anywhere.</span></h1>
+            <p class="text-xl md:text-2xl mb-8 max-w-2xl mx-auto">Orlando, FL</p>
+            <a href="#fleet" class="gold-bg navy-text font-bold py-3 px-8 rounded-full text-lg hover:bg-yellow-700 hover:text-white transition-all inline-block">Choose Your Car</a>
+        </div>
+    </section>
+<!-- Fleet Section -->
+    <section id="fleet" class="py-16 px-6 bg-gray-50">
+      <div class="container mx-auto">
+        <h2 class="text-3xl font-bold text-center navy-text mb-12">Our Premium Fleet</h2>
+          
+        <div class="relative">
+            <!-- CONTROLES NO TOPO DIREITO -->
+            <div class="absolute right-0 -top-10 sm:-top-12 z-50 flex gap-2 items-center">
+              <button id="fleetPrev"
+                class="w-8 h-8 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800 shadow flex items-center justify-center">
+                <i class="fas fa-chevron-left"></i>
+              </button>
+              <button id="fleetNext"
+                class="w-8 h-8 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800 shadow flex items-center justify-center">
+                <i class="fas fa-chevron-right"></i>
+              </button>
+            </div>
+        <div class="swiper mylux-fleet">
+        <!-- Swiper -->
+          <div class="swiper-wrapper">
+            <!-- Toyota Camry -->
+            <div class="swiper-slide">
+              <div class="car-card bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all">
+                <div class="relative h-48">
+                  <img
+                    src= "https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                    alt="Toyota Camry"
+                    class="w-full h-full object-cover card-image"
+                    loading="lazy"
+                    onerror="this.classList.add('hidden'); this.nextElementSibling.classList.remove('hidden');"
+                  />
+                  <div class="hidden absolute inset-0 skeleton"></div>
+                </div>
+                <div class="p-6">
+                  <h3 class="text-xl font-bold navy-text mb-2">Toyota Camry</h3>
+                  <div class="flex justify-between text-gray-600 mb-4">
+                    <span><i class="fas fa-calendar-alt mr-1"></i> 2023–2025</span>
+                    <span><i class="fas fa-users mr-1"></i> 5 seats</span>
+                    <span><i class="fas fa-suitcase mr-1"></i> 3 luggage</span>
+                  </div>
+                  <div class="flex justify-between items-center">
+                    <span class="text-2xl font-bold gold-text">$45<small class="text-gray-500 text-sm">/day</small></span>
+                    <button
+                        class="navy-bg text-white py-2 px-4 rounded hover:bg-blue-900 transition-all"
+                        onclick="showAvailabilityModal(this)"
+                        data-model="Toyota Camry"
+                        data-img="https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                        data-seats="5"
+                        data-luggage="3"
+                        data-price="45"
+                      >
+                        Check Availability
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Chevrolet Suburban -->
+            <div class="swiper-slide">
+              <div class="car-card bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all">
+                <div class="relative h-48">
+                  <img
+                    src="https://img1.icarros.com/dbimg/imgadicionalnoticia/4/84896_1.webp"
+                    alt="Chevrolet Suburban"
+                    class="w-full h-full object-cover card-image"
+                    loading="lazy"
+                    onerror="this.classList.add('hidden'); this.nextElementSibling.classList.remove('hidden');"
+                  />
+                  <div class="hidden absolute inset-0 skeleton"></div>
+                </div>
+                <div class="p-6">
+                  <h3 class="text-xl font-bold navy-text mb-2">Chevrolet Suburban</h3>
+                  <div class="flex justify-between text-gray-600 mb-4">
+                    <span><i class="fas fa-calendar-alt mr-1"></i> 2024–2025</span>
+                    <span><i class="fas fa-users mr-1"></i> 7–8 seats</span>
+                    <span><i class="fas fa-suitcase mr-1"></i> 5 luggage</span>
+                  </div>
+                  <div class="flex justify-between items-center">
+                    <span class="text-2xl font-bold gold-text">$200<small class="text-gray-500 text-sm">/day</small></span>
+                      <button
+                          class="navy-bg text-white py-2 px-4 rounded hover:bg-blue-900 transition-all"
+                          onclick="showAvailabilityModal(this)"
+                          data-model="Chevrolet Suburban"
+                          data-img="https://img1.icarros.com/dbimg/imgadicionalnoticia/4/84896_1.webp"
+                          data-seats="8"
+                          data-luggage="5"
+                          data-price="200"
+                        >
+                          Check Availability
+                      </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Mercedes EQS 680 Maybach -->
+            <div class="swiper-slide">
+              <div class="car-card bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all">
+                <div class="relative h-48">
+                  <img
+                    src="https://boulevard.co/wp-content/uploads/2024/11/mercedes-maybach-eqs-680-d1a.png"
+                    alt="Mercedes EQS 680 Maybach"
+                    class="w-full h-full object-cover card-image"
+                    loading="lazy"
+                    onerror="this.classList.add('hidden'); this.nextElementSibling.classList.remove('hidden');"
+                  />
+                  <div class="hidden absolute inset-0 skeleton"></div>
+                </div>
+                <div class="p-6">
+                  <h3 class="text-xl font-bold navy-text mb-2">Mercedes EQS 680 Maybach</h3>
+                  <div class="flex justify-between text-gray-600 mb-4">
+                    <span><i class="fas fa-calendar-alt mr-1"></i> 2024–2025</span>
+                    <span><i class="fas fa-users mr-1"></i> 4–5 seats</span>
+                    <span><i class="fas fa-suitcase mr-1"></i> 3 luggage</span>
+                  </div>
+                  <div class="flex justify-between items-center">
+                    <span class="text-2xl font-bold gold-text">$1000<small class="text-gray-500 text-sm">/day</small></span>
+                       <button
+                            class="navy-bg text-white py-2 px-4 rounded hover:bg-blue-900 transition-all"
+                            onclick="showAvailabilityModal(this)"
+                            data-model="Mercedes EQS 680 Maybach"
+                            data-img="https://boulevard.co/wp-content/uploads/2024/11/mercedes-maybach-eqs-680-d1a.png"
+                            data-seats="5"
+                            data-luggage="3"
+                            data-price="1000"
+                          >
+                            Check Availability
+                        </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- GMC Hummer EV -->
+            <div class="swiper-slide">
+              <div class="car-card bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all">
+                <div class="relative h-48">
+                  <img
+                    src="https://hips.hearstapps.com/hmg-prod/images/2024-gmc-hummer-ev-suv-308-6419ae7554a82.jpg?crop=0.646xw:0.546xh;0.213xw,0.262xh&resize=2048:*"
+                    alt="GMC Hummer EV"
+                    class="w-full h-full object-cover card-image"
+                    loading="lazy"
+                    onerror="this.classList.add('hidden'); this.nextElementSibling.classList.remove('hidden');"
+                  />
+                  <div class="hidden absolute inset-0 skeleton"></div>
+                </div>
+                <div class="p-6">
+                  <h3 class="text-xl font-bold navy-text mb-2">GMC Hummer EV</h3>
+                  <div class="flex justify-between text-gray-600 mb-4">
+                    <span><i class="fas fa-calendar-alt mr-1"></i> 2024–2025</span>
+                    <span><i class="fas fa-users mr-1"></i> 5 seats</span>
+                    <span><i class="fas fa-suitcase mr-1"></i> 4 luggage</span>
+                  </div>
+                  <div class="flex justify-between items-center">
+                    <span class="text-2xl font-bold gold-text">$500<small class="text-gray-500 text-sm">/day</small></span>
+                      <button
+                          class="navy-bg text-white py-2 px-4 rounded hover:bg-blue-900 transition-all"
+                          onclick="showAvailabilityModal(this)"
+                          data-model="GMC Hummer EV"
+                          data-img="https://hips.hearstapps.com/hmg-prod/images/2024-gmc-hummer-ev-suv-308-6419ae7554a82.jpg?crop=0.646xw:0.546xh;0.213xw,0.262xh&resize=2048:*"
+                          data-seats="5"
+                          data-luggage="4"
+                          data-price="500"
+                        >
+                          Check Availability
+                      </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Ford F-150 Raptor -->
+            <div class="swiper-slide">
+              <div class="car-card bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all">
+                <div class="relative h-48">
+                  <img
+                    src="https://images.unsplash.com/photo-1614484393797-257ee1d83a1e?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                    alt="Ford F-150 Raptor"
+                    class="w-full h-full object-cover card-image"
+                    loading="lazy"
+                    onerror="this.classList.add('hidden'); this.nextElementSibling.classList.remove('hidden');"
+                  />
+                  <div class="hidden absolute inset-0 skeleton"></div>
+                </div>
+                <div class="p-6">
+                  <h3 class="text-xl font-bold navy-text mb-2">Ford F-150 Raptor</h3>
+                  <div class="flex justify-between text-gray-600 mb-4">
+                    <span><i class="fas fa-calendar-alt mr-1"></i> 2023–2025</span>
+                    <span><i class="fas fa-users mr-1"></i> 5 seats</span>
+                    <span><i class="fas fa-suitcase mr-1"></i> 4 luggage</span>
+                  </div>
+                  <div class="flex justify-between items-center">
+                    <span class="text-2xl font-bold gold-text">$200<small class="text-gray-500 text-sm">/day</small></span>
+                       <button
+                            class="navy-bg text-white py-2 px-4 rounded hover:bg-blue-900 transition-all"
+                            onclick="showAvailabilityModal(this)"
+                            data-model="Ford F-150 Raptor"
+                            data-img="https://images.unsplash.com/photo-1614484393797-257ee1d83a1e?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                            data-seats="5"
+                            data-luggage="4"
+                            data-price="200"
+                          >
+                            Check Availability
+                        </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+          <!-- Pagination -->
+        <div class="swiper-pagination mt-6 text-center"></div>
+        </div>    
+      </div>
+    </section>
+    
+    <!-- Testimonials -->
+    <section class="py-16 px-6 bg-white">
+        <div class="container mx-auto">
+            <h2 class="text-3xl font-bold text-center navy-text mb-12">What Our Customers Say</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-gray-50 p-6 rounded-lg shadow">
+                    <div class="flex items-center mb-4">
+                        <div class="gold-text text-2xl mr-2">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4">"The easiest car rental experience ever! No hidden fees and the Cadillac Escalade was perfect for our family vacation."</p>
+                    <div class="flex items-center">
+                        <img src="https://randomuser.me/api/portraits/women/43.jpg" alt="Customer" class="w-10 h-10 rounded-full mr-3">
+                        <div>
+                            <h4 class="font-semibold navy-text">Maria Silva</h4>
+                            <p class="text-sm text-gray-500">From Brazil</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 p-6 rounded-lg shadow">
+                    <div class="flex items-center mb-4">
+                        <div class="gold-text text-2xl mr-2">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4">"Not having to pay a security deposit made this rental so much better than others. The Mercedes was spotless and luxurious."</p>
+                    <div class="flex items-center">
+                        <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Customer" class="w-10 h-10 rounded-full mr-3">
+                        <div>
+                            <h4 class="font-semibold navy-text">John Rodriguez</h4>
+                            <p class="text-sm text-gray-500">From Colombia</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 p-6 rounded-lg shadow">
+                    <div class="flex items-center mb-4">
+                        <div class="gold-text text-2xl mr-2">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4">"Multilingual support was a lifesaver when we had questions. The Range Rover was perfect for exploring Orlando in style."</p>
+                    <div class="flex items-center">
+                        <img src="https://randomuser.me/api/portraits/women/65.jpg" alt="Customer" class="w-10 h-10 rounded-full mr-3">
+                        <div>
+                            <h4 class="font-semibold navy-text">Sophie Martin</h4>
+                            <p class="text-sm text-gray-500">From France</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section> 
+    
+    <!-- CTA Section -->
+    <section class="navy-bg text-white py-16 px-6">
+        <div class="container mx-auto text-center">
+            <a href="#fleet" class="gold-bg navy-text font-bold py-3 px-8 rounded-full text-lg hover:bg-yellow-700 hover:text-white transition-all inline-block">Choose Your Car Now</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12 px-6">
+        <div class="container mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <i class="fas fa-car text-2xl gold-text"></i>
+                        <span class="text-xl font-bold">MYLUX<span class="gold-text">CARS</span></span>
+                    </div>
+                    <p class="text-gray-400 mb-4">Premium cars. Delivered to you, anytime, anywhere.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4 gold-text">Quick Links</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" onclick="openLocationsModal()"
+                             class="text-gray-400 hover:text-white transition-all">
+                            Service Areas
+                          </a>
+                        </li>
+                        <li><a href="#fleet" class="text-gray-400 hover:text-white transition-all">Upgrades</a></li>
+                        <li>
+                        <li>
+                          <a href="#" 
+                             onclick="openBenefitsModal()" 
+                             class="text-gray-400 hover:text-white transition-all">
+                            Why Us
+                          </a>
+                        </li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4 gold-text">Contact Us</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li class="flex items-center"><i class="fas fa-map-marker-alt mr-2 gold-text"></i> Orlando, Florida</li>
+                        <li class="flex items-center"><i class="fas fa-phone mr-2 gold-text"></i> +1 (407) 555-1212</li>
+                        <li class="flex items-center"><i class="fas fa-envelope mr-2 gold-text"></i> info@myluxcars.com</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4 gold-text">Follow Us</h3>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition-all text-xl"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-all text-xl"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-all text-xl"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-all text-xl"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-500">
+                <p>&copy; 2025 MYLUXCARS. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal Benefits -->
+    <div id="benefitsModal"
+       class="fixed inset-0 hidden z-50 items-center justify-center bg-black/60 backdrop-blur-sm">
+        <div class="relative w-11/12 max-w-4xl max-h-[85vh] overflow-y-auto bg-white rounded-2xl shadow-2xl p-5 md:p-8 animate-zoom">
+            <!-- Botão fechar (redireciona) -->
+            <button onclick="closeBenefitsModal()" 
+                    aria-label="Fechar modal"
+                    class="absolute top-3 right-3 rounded-full p-2 text-gray-600 hover:text-white hover:bg-red-500 transition">
+              <i class="fas fa-times"></i>
+            </button>
+
+            <!-- Section reestruturada para modal -->
+            <section id="benefits" class="py-2">
+                <div class="mx-auto">
+                  <h2 class="text-xl md:text-2xl font-bold text-center text-[#0e2a47] mb-6">
+                    Why Choose MYLUXCARS
+                  </h2>
+
+                <!-- Grade responsiva: 1 / 2 / 3 colunas -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                    <!-- item -->
+                    <div class="text-center p-4 md:p-5 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition">
+                      <div class="text-[#C6A25A] text-2xl md:text-3xl mb-3">
+                        <i class="fas fa-shield-alt"></i>
+                      </div>
+                      <h3 class="text-base md:text-lg font-semibold text-[#0e2a47] mb-1">No Security Deposit</h3>
+                      <p class="text-sm md:text-[15px] text-gray-600">
+                        Enjoy your rental without worrying about large security deposits holding your funds.
+                      </p>
+                    </div>
+
+                    <div class="text-center p-4 md:p-5 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition">
+                      <div class="text-[#C6A25A] text-2xl md:text-3xl mb-3">
+                        <i class="fas fa-money-bill-wave"></i>
+                      </div>
+                      <h3 class="text-base md:text-lg font-semibold text-[#0e2a47] mb-1">No IOF Tax</h3>
+                      <p class="text-sm md:text-[15px] text-gray-600">
+                        We've eliminated the IOF tax, saving you money on your international rental.
+                      </p>
+                    </div>
+
+                    <div class="text-center p-4 md:p-5 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition">
+                      <div class="text-[#C6A25A] text-2xl md:text-3xl mb-3">
+                        <i class="fas fa-car"></i>
+                      </div>
+                      <h3 class="text-base md:text-lg font-semibold text-[#0e2a47] mb-1">Free Orlando Delivery</h3>
+                      <p class="text-sm md:text-[15px] text-gray-600">
+                        We deliver and pick up your car anywhere in Orlando - no extra fees.
+                      </p>
+                    </div>
+
+                    <div class="text-center p-4 md:p-5 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition">
+                      <div class="text-[#C6A25A] text-2xl md:text-3xl mb-3">
+                        <i class="fas fa-baby-carriage"></i>
+                      </div>
+                      <h3 class="text-base md:text-lg font-semibold text-[#0e2a47] mb-1">Child Seats Included</h3>
+                      <p class="text-sm md:text-[15px] text-gray-600">
+                        All our family vehicles come with child safety seats at no additional cost.
+                      </p>
+                    </div>
+
+                    <div class="text-center p-4 md:p-5 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition">
+                      <div class="text-[#C6A25A] text-2xl md:text-3xl mb-3">
+                        <i class="fas fa-mobile-alt"></i>
+                      </div>
+                      <h3 class="text-base md:text-lg font-semibold text-[#0e2a47] mb-1">Simple Web Check-in</h3>
+                      <p class="text-sm md:text-[15px] text-gray-600">
+                        Complete your check-in online before arrival for a faster, contactless experience.
+                      </p>
+                    </div>
+
+                    <div class="text-center p-4 md:p-5 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition">
+                      <div class="text-[#C6A25A] text-2xl md:text-3xl mb-3">
+                        <i class="fas fa-globe-americas"></i>
+                      </div>
+                      <h3 class="text-base md:text-lg font-semibold text-[#0e2a47] mb-1">Multilingual Support</h3>
+                      <p class="text-sm md:text-[15px] text-gray-600">
+                        Our team speaks English, Portuguese, and Spanish to assist you seamlessly.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            </div>
+          </div>
+      </div>
+    </div>
+
+    <!-- Services Areas Modal -->
+    <div id="locationsModal"
+         class="fixed inset-0 hidden z-50 items-center justify-center bg-black/60 backdrop-blur-sm">
+      <div class="relative w-11/12 max-w-5xl max-h-[88vh] bg-white rounded-2xl shadow-2xl p-4 md:p-6 flex flex-col animate-zoom">
+        <!-- Header -->
+        <div class="flex items-center justify-between gap-4 mb-3">
+          <h2 class="text-lg md:text-2xl font-bold text-[#0e2a47]">
+            Service Areas — MYLUXCARS
+          </h2>
+          <button onclick="closeLocationsModal()" aria-label="Fechar modal"
+                  class="rounded-full p-2 text-gray-600 hover:text-white hover:bg-red-500 transition">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <!-- Controles -->
+        <div class="flex flex-wrap items-center gap-2 md:gap-3 mb-3">
+          <span class="text-sm text-gray-600 mr-2">Show:</span>
+          <button id="btnAirports"
+                  class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 bg-white hover:bg-gray-50 data-[active=true]:bg-[#0e2a47] data-[active=true]:text-white transition"
+                  data-active="true"
+                  onclick="toggleGroup('airports')">
+            Airports ✈️
+          </button>
+          <button id="btnCities"
+                  class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 bg-white hover:bg-gray-50 data-[active=true]:bg-[#0e2a47] data-[active=true]:text-white transition"
+                  data-active="true"
+                  onclick="toggleGroup('cities')">
+            Cities 📍
+          </button>
+
+          <div class="ml-auto flex items-center gap-2 text-xs md:text-sm text-gray-600">
+            <span class="inline-flex items-center gap-1">
+              <span class="h-3 w-3 inline-block rounded-full bg-blue-600"></span> Airport
+            </span>
+            <span class="inline-flex items-center gap-1">
+              <span class="h-3 w-3 inline-block rounded-full bg-amber-600"></span> City
+            </span>
+            <button onclick="fitAllMarkers()"
+                    class="ml-2 px-3 py-1.5 rounded-lg border border-gray-200 hover:bg-gray-50 transition">
+                Fit All
+            </button>
+          </div>
+        </div>
+
+        <!-- Mapa -->
+        <div id="serviceMap" class="rounded-xl overflow-hidden border border-gray-200"
+             style="height: 65vh; min-height: 360px;"></div>
+
+        <!-- Rodapé opcional -->
+        <div class="mt-3 text-center text-xs text-gray-500">
+            Service areas subject to availability. Contact our team for specific confirmations.
+        </div>
+      </div>
+    </div>
+    
+    <!-- Availability Modal -->
+    <div id="availabilityModal"
+         class="fixed inset-0 bg-black bg-opacity-50 flex items-start sm:items-center justify-center z-50 hidden overflow-y-auto p-4 min-h-[100dvh] pt-safe">
+
+      <div class="bg-white rounded-2xl w-full max-w-3xl mx-4 md:mx-6 shadow-2xl overflow-hidden">
+        <!-- Cabeçalho -->
+        <div class="flex items-center justify-between px-5 md:px-6 py-4 border-b">
+          <h3 class="text-lg md:text-xl font-bold navy-text" id="modalCarTitle">Check Availability</h3>
+          <button onclick="closeModal()" class="rounded-full p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <!-- Conteúdo -->
+        <div class="p-5 md:p-6">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
+            <!-- Coluna esquerda: veículo + resumo -->
+            <div class="space-y-5">
+              <!-- Veículo selecionado -->
+              <div class="flex items-center p-3 bg-gray-50 rounded-xl border border-gray-100">
+                <img id="selectedCarImg"
+                     src="https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?auto=format&fit=crop&w=400&q=70"
+                     alt="Selected car"
+                     class="w-20 h-20 object-cover rounded-lg mr-4">
+                <div class="min-w-0">
+                  <h5 class="font-semibold navy-text truncate" id="selectedCarModel">Vehicle</h5>
+                  <div class="flex flex-wrap gap-x-3 text-gray-600 text-sm">
+                    <span id="selectedSeats"><i class="fas fa-users mr-1"></i> — seats</span>
+                    <span id="selectedLuggage"><i class="fas fa-suitcase mr-1"></i> — luggage</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Resumo de preço (exemplo simples) -->
+              <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                <h4 class="font-semibold navy-text mb-3">Price Summary</h4>
+                <div class="flex justify-between text-sm mb-2">
+                  <span class="text-gray-600"><span id="daysCount">0</span> day(s) rental</span>
+                  <span class="font-semibold">$<span id="calcSubtotal">0</span>.00</span>
+                </div>
+                <div class="flex justify-between text-sm mb-2">
+                  <span class="text-gray-600">No IOF Tax</span>
+                  <span class="font-semibold text-green-600">$0.00</span>
+                </div>
+                <div class="flex justify-between text-sm mb-2">
+                  <span class="text-gray-600">No Security Deposit</span>
+                  <span class="font-semibold text-green-600">$0.00</span>
+                </div>
+                <div class="border-t pt-2 mt-2 flex justify-between">
+                  <span class="font-bold">Total</span>
+                  <span class="font-bold text-xl gold-text">$<span id="calcTotal">0</span>.00</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Coluna direita: calendário + campos -->
+            <div class="space-y-4">
+              <!-- Calendário inline (range) -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Select your dates</label>
+                <div id="dateCalendar"
+                     class="rounded-xl border border-gray-200 overflow-hidden max-h-[55vh] sm:max-h-none overflow-y-auto ios-scroll
+                            w-full max-w-full mx-auto">
+                </div>
+             </div>
+              <!-- Campos preenchidos automaticamente -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm text-gray-700 mb-1">Pick-Up Date</label>
+                  <input id="pickupDate" type="text" readonly
+                         class="w-full p-2 border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-yellow-500">
+                </div>
+                <div>
+                  <label class="block text-sm text-gray-700 mb-1">Drop-Off Date</label>
+                  <input id="dropoffDate" type="text" readonly
+                         class="w-full p-2 border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-yellow-500">
+                </div>
+              </div>
+                <button
+                    type="button"                           
+                    onclick="showPaymentModal(event)"       
+                    class="w-full gold-bg navy-text font-bold py-3 px-4 rounded hover:bg-yellow-700 hover:text-white transition-all">
+                Reserve Now
+                </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div id="paymentModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60] hidden">
+        <div class="bg-white rounded-lg p-6 w-full max-w-2xl mx-4 max-h-[90vh] sm:max-h-[85vh] overflow-y-auto ios-scroll">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold navy-text">Complete Your Reservation</h3>
+                <button onclick="closePaymentModal()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <h4 class="font-semibold navy-text mb-4">Payment Information</h4>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-gray-700 mb-2">Card Number</label>
+                            <input type="text" placeholder="1234 5678 9012 3456" class="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-gold-500">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-gray-700 mb-2">Expiry Date</label>
+                                <input type="text" placeholder="MM/YY" class="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-gold-500">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 mb-2">CVV</label>
+                                <input type="text" placeholder="123" class="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-gold-500">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2">Name on Card</label>
+                            <input type="text" placeholder="John Doe" class="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-gold-500">
+                        </div>
+                    </div>
+                    <div class="mt-6">
+                        <h4 class="font-semibold navy-text mb-2">Payment Methods</h4>
+                        <div class="flex space-x-4">
+                            <button class="p-2 border rounded hover:bg-gray-100 transition-all">
+                                <i class="fab fa-cc-stripe text-2xl text-blue-600"></i>
+                            </button>
+                            <button class="p-2 border rounded hover:bg-gray-100 transition-all">
+                                <i class="fab fa-cc-paypal text-2xl text-blue-500"></i>
+                            </button>
+                            <button class="p-2 border rounded hover:bg-gray-100 transition-all">
+                                <i class="fab fa-cc-apple-pay text-2xl text-black"></i>
+                            </button>
+                            <button class="p-2 border rounded hover:bg-gray-100 transition-all">
+                                <i class="fab fa-cc-google-pay text-2xl text-red-500"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="font-semibold navy-text mb-4">Reservation Summary</h4>
+                    <div class="mb-4">
+                        <div class="flex items-center p-3 bg-gray-50 rounded mb-3">
+                            <img src="https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80" alt="Car" class="w-16 h-16 object-cover rounded mr-4">
+                            <div>
+                                <h5 class="font-bold navy-text" id="paymentCarModel">Cadillac Escalade</h5>
+                                <div class="flex text-gray-600 text-sm">
+                                    <span class="mr-3"><i class="fas fa-users mr-1"></i> 7 seats</span>
+                                    <span><i class="fas fa-suitcase mr-1"></i> 4 luggage</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Pick-Up Date:</span>
+                                <span class="font-semibold">June 15, 2023</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Drop-Off Date:</span>
+                                <span class="font-semibold">June 20, 2023</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Rental Days:</span>
+                                <span class="font-semibold">5 days</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded mb-4">
+                        <div class="flex justify-between mb-2">
+                            <span class="text-gray-600">Subtotal</span>
+                            <span class="font-semibold">$945.00</span>
+                        </div>
+                        <div class="flex justify-between mb-2">
+                            <span class="text-gray-600">Taxes & Fees</span>
+                            <span class="font-semibold">$0.00</span>
+                        </div>
+                        <div class="border-t border-gray-300 pt-2 mt-2 flex justify-between">
+                            <span class="font-bold">Total</span>
+                            <span class="font-bold text-lg gold-text">$945.00</span>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="flex items-start">
+                            <input type="checkbox" class="mt-1 mr-2">
+                            <span class="text-sm text-gray-600">I agree to the <a href="#" class="gold-text hover:underline">Terms & Conditions</a> and <a href="#" class="gold-text hover:underline">Rental Agreement</a></span>
+                        </label>
+                    </div>
+                    <button onclick="showConfirmation()" class="w-full gold-bg navy-text font-bold py-3 px-4 rounded hover:bg-yellow-700 hover:text-white transition-all">Confirm Payment</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmationModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[70] hidden">
+        <div class="bg-white rounded-lg p-8 w-full max-w-md mx-4 text-center">
+            <div class="gold-text text-5xl mb-4">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h3 class="text-2xl font-bold navy-text mb-4">Booking Confirmed!</h3>
+            <p class="text-gray-600 mb-6">Your reservation for the <span id="confirmedCar" class="font-semibold">Cadillac Escalade</span> has been successfully confirmed.</p>
+
+            <div class="mb-6 text-left bg-gray-50 p-4 rounded">
+                <h4 class="font-semibold navy-text mb-2">Next Steps:</h4>
+                <ol class="list-decimal list-inside space-y-2 text-sm text-gray-600">
+                    <li>We'll send a confirmation email with all details</li>
+                    <li>Complete your web check-in by uploading documents</li>
+                    <li>Your car will be delivered to your Orlando address</li>
+                </ol>
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-gray-700 mb-2 text-left">Delivery Address in Orlando</label>
+                <input type="text" placeholder="Enter your delivery address" class="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-gold-500 mb-2">
+                <button class="w-full navy-bg text-white font-bold py-2 px-4 rounded hover:bg-blue-900 transition-all">Save Address</button>
+            </div>
+
+            <button onclick="closeConfirmationModal()" class="gold-bg navy-text font-bold py-2 px-6 rounded hover:bg-yellow-700 hover:text-white transition-all">Done</button>
+        </div>
+    </div>
+
+    <script>
+        // Close modal
+        function closeModal() {
+            document.getElementById('availabilityModal').classList.add('hidden');
+        }
+
+        // Show payment modal
+        function showPaymentModal(e) {
+          if (e) { e.preventDefault(); e.stopPropagation(); }
+
+          const avail = document.getElementById('availabilityModal');
+          const pay   = document.getElementById('paymentModal');
+
+          if (avail) {
+            avail.classList.add('hidden');
+            avail.style.display = ''; // limpa inline se houver
+          }
+
+          if (pay) {
+            pay.classList.remove('hidden');
+            pay.style.display = 'flex'; // garante visibilidade
+            pay.style.zIndex = 60;      // sobrepõe o availability
+            pay.scrollTo(0, 0);
+          }
+
+          document.body.style.overflow = 'hidden';
+        }
+
+        // Close payment modal
+        function closePaymentModal() {
+          const pay = document.getElementById('paymentModal');
+          if (pay) {
+            pay.classList.add('hidden');
+            pay.style.display = ''; // <-- limpa o inline que mantém o modal visível
+          }
+
+          // Se nenhum outro modal estiver aberto, libera o scroll do body
+          const anyOpen = !document.getElementById('availabilityModal')?.classList.contains('hidden') ||
+                          !document.getElementById('confirmationModal')?.classList.contains('hidden');
+          if (!anyOpen) document.body.style.overflow = '';
+        }
+
+        // Show confirmation
+        function showConfirmation() {
+          const pay  = document.getElementById('paymentModal');
+          const conf = document.getElementById('confirmationModal');
+
+          // Esconde Payment corretamente
+          if (pay) {
+            pay.classList.add('hidden');
+            pay.style.display = '';   // <-- limpa o inline que podia mantê-lo visível
+          }
+
+          // Mostra Confirmation
+          if (conf) {
+            conf.classList.remove('hidden');
+            conf.style.display = 'flex'; // garante layout flex
+            conf.scrollTo(0, 0);
+          }
+
+          document.body.style.overflow = 'hidden';
+        }
+
+        function closeConfirmationModal() {
+          const conf = document.getElementById('confirmationModal');
+          if (conf) {
+            conf.classList.add('hidden');
+            conf.style.display = '';     // limpa inline
+          }
+          document.body.style.overflow = ''; // libera scroll do body
+        }
+
+        // Mobile menu toggle (would need more implementation)
+        document.querySelector('.md\\:hidden').addEventListener('click', function() {
+            // This would toggle a mobile menu in a full implementation
+            alert('Mobile menu would open here in a full implementation');
+        });
+
+          const modal = document.getElementById('benefitsModal');
+
+          function openBenefitsModal() {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.body.style.overflow = 'hidden';
+          }
+
+          function closeBenefitsModal() {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.body.style.overflow = 'auto';
+          }
+
+          // Também fecha ao clicar no backdrop
+          modal?.addEventListener('click', (e) => {
+            if (e.target === modal) {
+              closeBenefitsModal();
+            }
+          });
+
+          // Fecha com ESC
+          document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+              closeBenefitsModal();
+            }
+          });
+
+          // ----- Controles do modal -----
+          const locationsModal = document.getElementById('locationsModal');
+
+          // ----- Estado global mínimo -----
+          window.__serviceMapInitialized = false;
+          window.__map = null;
+
+          // Util: garante que o DOM já existe
+          function onReady(fn) {
+            if (document.readyState === 'loading') {
+              document.addEventListener('DOMContentLoaded', fn, { once: true });
+            } else {
+              fn();
+            }
+          }
+
+          // Abre modal e inicializa mapa no timing certo
+          function openLocationsModal() {
+            onReady(() => {
+              const modal = document.getElementById('locationsModal');
+              if (!modal) return;
+
+              modal.classList.remove('hidden');
+              modal.classList.add('flex');
+              document.body.style.overflow = 'hidden';
+
+              // Espera o modal “montar” no layout antes de tocar o mapa
+              requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                  if (!window.__serviceMapInitialized) {
+                    initServiceMap();      // cria o mapa apenas uma vez
+                  } else {
+                    // Se já existe, só revalida tamanho
+                    window.__map?.invalidateSize();
+                    fitAllMarkers();
+                  }
+                  // Fallback extra (alguns browsers precisam de um tick a mais)
+                  setTimeout(() => {
+                    window.__map?.invalidateSize();
+                    fitAllMarkers();
+                  }, 60);
+                });
+              });
+            });
+          }
+
+          function closeLocationsModal() {
+            const modal = document.getElementById('locationsModal');
+            if (!modal) return;
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.body.style.overflow = 'auto';
+          }
+
+          // Fecha clicando no backdrop
+          onReady(() => {
+            const modal = document.getElementById('locationsModal');
+            modal?.addEventListener('click', (e) => {
+              if (e.target === modal) closeLocationsModal();
+            });
+          });
+
+          // Fecha com ESC
+          document.addEventListener('keydown', (e) => {
+            const modal = document.getElementById('locationsModal');
+            if (e.key === 'Escape' && modal && !modal.classList.contains('hidden')) {
+              closeLocationsModal();
+            }
+          });
+
+          // ----- Mapa (Leaflet) -----
+          let airportLayer, cityLayer;
+
+          function initServiceMap() {
+            const mapEl = document.getElementById('serviceMap');
+            if (!mapEl) return;
+
+            // Evita criar 2x se o usuário abrir/fechar repetidamente
+            if (window.__serviceMapInitialized) return;
+            window.__serviceMapInitialized = true;
+
+            const map = L.map(mapEl, { scrollWheelZoom: true });
+            window.__map = map;
+
+            // Tiles OSM
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+              maxZoom: 19,
+              attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
+
+            // Ícones
+            const airportIcon = () => L.divIcon({
+              className: 'airport-pin',
+              html: `<div style="transform:translate(-50%,-100%)">
+                       <div style="background:#1d4ed8;color:#fff;border-radius:9999px;padding:6px 8px;box-shadow:0 6px 14px rgba(0,0,0,.25);font-size:14px;">✈️</div>
+                       <div style="width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:10px solid #1d4ed8;margin:auto"></div>
+                     </div>`,
+              iconSize: [30, 42],
+              iconAnchor: [15, 42]
+            });
+
+            const cityIcon = () => L.divIcon({
+              className: 'city-pin',
+              html: `<div style="transform:translate(-50%,-100%)">
+                       <div style="background:#b45309;color:#fff;border-radius:9999px;padding:6px 8px;box-shadow:0 6px 14px rgba(0,0,0,.25);font-size:14px;">📍</div>
+                       <div style="width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:10px solid #b45309;margin:auto"></div>
+                     </div>`,
+              iconSize: [30, 42],
+              iconAnchor: [15, 42]
+            });
+
+            // Dados
+            const airports = [
+              { name: 'Orlando International Airport (MCO)', coords: [28.4312, -81.3081] },
+              { name: 'Orlando Sanford International (SFB)', coords: [28.7776, -81.2375] },
+              { name: 'Orlando Executive Airport (ORL)', coords: [28.5455, -81.3329] },
+            ];
+            const cities = [
+              { name: 'Orlando (Downtown)', coords: [28.5383, -81.3792] },
+              { name: 'Lake Buena Vista (Disney Area)', coords: [28.3772, -81.5120] },
+              { name: 'Kissimmee', coords: [28.2919, -81.4076] },
+              { name: 'Celebration', coords: [28.3180, -81.5410] },
+              { name: 'International Drive (I-Drive)', coords: [28.4322, -81.4701] },
+              { name: 'Winter Park', coords: [28.5990, -81.3392] },
+              { name: 'Altamonte Springs', coords: [28.6611, -81.3656] },
+              { name: 'Sanford (City)', coords: [28.8029, -81.2696] },
+              { name: 'Lake Mary', coords: [28.7580, -81.3170] },
+              { name: 'Winter Garden', coords: [28.5653, -81.5862] },
+              { name: 'Clermont', coords: [28.5494, -81.7729] },
+              { name: 'Davenport', coords: [28.1610, -81.6018] },
+              { name: 'Apopka', coords: [28.6934, -81.5322] },
+            ];
+
+            airportLayer = L.layerGroup(
+              airports.map(a => L.marker(a.coords, { icon: airportIcon() }).bindPopup(`<strong>${a.name}</strong><br>Pick-up & Drop-off`))
+            ).addTo(map);
+
+            cityLayer = L.layerGroup(
+              cities.map(c => L.marker(c.coords, { icon: cityIcon() }).bindPopup(`<strong>${c.name}</strong><br>Atendemos nessa região`))
+            ).addTo(map);
+
+            fitAllMarkers(); // enquadra tudo
+          }
+
+          // Enquadra os marcadores visíveis
+          function fitAllMarkers() {
+            const map = window.__map;
+            if (!map) return;
+            const visible = [];
+            if (map.hasLayer(airportLayer)) visible.push(...airportLayer.getLayers());
+            if (map.hasLayer(cityLayer)) visible.push(...cityLayer.getLayers());
+            if (!visible.length) return;
+
+            const group = L.featureGroup(visible);
+            map.fitBounds(group.getBounds(), { padding: [30, 30] });
+          }
+
+          // Botões de filtro (se você adicionou no header do modal)
+          function toggleGroup(group) {
+            const map = window.__map;
+            if (!map) return;
+            const btnAir = document.getElementById('btnAirports');
+            const btnCity = document.getElementById('btnCities');
+
+            if (group === 'airports') {
+              const active = btnAir?.getAttribute('data-active') === 'true';
+              btnAir?.setAttribute('data-active', (!active).toString());
+              (!active) ? map.addLayer(airportLayer) : map.removeLayer(airportLayer);
+            } else {
+              const active = btnCity?.getAttribute('data-active') === 'true';
+              btnCity?.setAttribute('data-active', (!active).toString());
+              (!active) ? map.addLayer(cityLayer) : map.removeLayer(cityLayer);
+            }
+            fitAllMarkers();
+          }
+
+          const fleetSwiper = new Swiper('.mylux-fleet', {
+            speed: 500,
+            spaceBetween: 24,
+            loop: true,
+            grabCursor: true,
+            slidesPerView: 1,
+            pagination: { el: '.swiper-pagination', clickable: true },
+            navigation: { nextEl: '#fleetNext', prevEl: '#fleetPrev' }, 
+            breakpoints: { 768: { slidesPerView: 2 }, 1024:{ slidesPerView: 3 } },
+            preloadImages: false,
+            lazy: { loadPrevNext: true, loadPrevNextAmount: 2 }
+          });
+
+          // helper: formata YYYY-MM-DD -> MMM DD, YYYY (simples)
+          function formatDisplay(d) {
+            if (!d) return "";
+            const dt = new Date(d);
+            return dt.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: '2-digit' });
+          }
+
+          // guarda preço diário do carro atual
+          let __currentDailyPrice = 0;
+
+          // Abre o modal lendo os data-* do botão clicado
+          function showAvailabilityModal(btnEl) {
+              const pay = document.getElementById('paymentModal');
+              if (pay) { pay.classList.add('hidden'); pay.style.display = ''; }
+              
+            // lê dataset do botão
+            const model = btnEl.dataset.model || 'Selected Vehicle';
+            const img   = btnEl.dataset.img   || 'https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?auto=format&fit=crop&w=800&q=70';
+            const seats = btnEl.dataset.seats || '-';
+            const lug   = btnEl.dataset.luggage || '-';
+            const price = Number(btnEl.dataset.price || 0);
+
+            __currentDailyPrice = price;
+
+            // Preenche elementos
+            document.getElementById('modalCarTitle').textContent = `Check Availability — ${model}`;
+            document.getElementById('selectedCarModel').textContent = model;
+            document.getElementById('selectedCarImg').src = img;
+            document.getElementById('selectedSeats').innerHTML = `<i class="fas fa-users mr-1"></i> ${seats} seats`;
+            document.getElementById('selectedLuggage').innerHTML = `<i class="fas fa-suitcase mr-1"></i> ${lug} luggage`;
+
+            // Limpa campos de datas e preço
+            document.getElementById('pickupDate').value = '';
+            document.getElementById('dropoffDate').value = '';
+            document.getElementById('daysCount').textContent = '0';
+            document.getElementById('calcSubtotal').textContent = '0';
+            document.getElementById('calcTotal').textContent = '0';
+
+            // Abre modal
+            document.getElementById('availabilityModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';            // trava o fundo
+            document.getElementById('availabilityModal')?.scrollTo(0, 0);     // garante topo do overlay
+            document.getElementById('availabilityCard')?.scrollTo({ top: 0 }); // garante topo do card
+            document.getElementById('availabilityCard')?.focus();              // acessibilidade
+
+            // Inicializa (ou reinicializa) o calendário inline
+            initInlineRangeCalendar();
+          }
+
+          function closeModal() {
+            document.getElementById('availabilityModal').classList.add('hidden');
+            document.body.style.overflow = ''; 
+          }
+
+          // Flatpickr inline range
+          let __fp; // instância
+          function initInlineRangeCalendar() {
+            const calContainer = document.getElementById('dateCalendar');
+            if (!calContainer) return;
+
+            // destrói instância anterior, se houver
+            if (__fp && __fp.destroy) { __fp.destroy(); }
+
+            __fp = flatpickr(calContainer, {
+              inline: true,
+              mode: 'range',
+              minDate: 'today',
+              dateFormat: 'Y-m-d',
+              weekNumbers: true,
+              onChange: function (selectedDates) {
+                // quando tiver 2 datas, preenche campos
+                if (selectedDates.length === 2) {
+                  const [start, end] = selectedDates;
+                  const pickup = start.toISOString().slice(0,10);
+                  const drop   = end.toISOString().slice(0,10);
+
+                  // Preenche inputs readonly
+                  document.getElementById('pickupDate').value  = formatDisplay(pickup);
+                  document.getElementById('dropoffDate').value = formatDisplay(drop);
+
+                  // Calcula diárias (diferença em dias)
+                  const msPerDay = 24 * 60 * 60 * 1000;
+                  const days = Math.max(1, Math.round((end - start) / msPerDay));
+                  document.getElementById('daysCount').textContent = String(days);
+
+                  const subtotal = days * __currentDailyPrice;
+                  document.getElementById('calcSubtotal').textContent = String(subtotal);
+                  document.getElementById('calcTotal').textContent    = String(subtotal);
+                }
+              }
+            });
+          }
+
+    </script>
+</body>
+</html>
