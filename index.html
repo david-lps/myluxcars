@@ -34,9 +34,23 @@
         .gold-border {
             border-color: #b8860b;
         }
-        .navy-bg {
-            background-color: #001f3f;
-        }
+
+      .navy-bg {
+        /* Azuis  */
+        --g1: #071a2f; /* navy quase preto */
+        --g2: #061F38; /* navy profundo */
+        --g3: #061F38; /* azul grafite */
+
+        color: #fff;
+        background-color: var(--g2); /* fallback */
+        background-image:
+          radial-gradient(60% 100% at 20% 0%, rgba(78,161,255,.10) 0%, rgba(78,161,255,0) 60%),
+          linear-gradient(135deg, var(--g1) 0%, var(--g2) 38%, var(--g3) 100%);
+        box-shadow:
+          inset 0 0 0 1px rgba(255,255,255,.04),
+          0 10px 30px rgba(0,0,0,.35);
+      }
+      
         .navy-text {
             color: #001f3f;
         }
@@ -178,54 +192,180 @@
             font-size: 0.9rem;
           }
         }
-        
+
+      #fullBookingModal #fbDateCalendar:empty {
+        min-height: 0;
+        padding: 0;
+        border-width: 0;
+      }
+
+      #fullBookingModal .flatpickr-calendar.inline {
+        width: fit-content !important;   /* encolhe à largura do conteúdo */
+        max-width: 100% !important;
+        margin-inline: auto;             /* centraliza dentro da coluna */
+        box-sizing: border-box;
+      }
+
+      /* Novo modal: tamanho compacto do calendário */
+      #fullBookingModal .flatpickr-calendar { 
+        font-size: 14px;            
+      }
+
+      /* Altura dos dias (quadradinhos) */
+      #fullBookingModal .flatpickr-day {
+        height: 30px;
+        line-height: 30px;
+      }
+
+      /* Barra do mês e setas mais baixas */
+      #fullBookingModal .flatpickr-months .flatpickr-month {
+        height: 34px;
+      }
+
+      /* Área do seletor de horário mais baixinha */
+      #fullBookingModal .flatpickr-time {
+        height: 36px;
+      }
+      #fullBookingModal .flatpickr-time input {
+        height: 32px;
+        padding: 2px 6px;
+      }
+
+      #fullBookingModal .flatpickr-days { margin-left: 0 !important; }
+
+      /* Overlay de processamento */
+      #bookingProcessingOverlay {
+        background: rgba(0,0,0,.55);
+        backdrop-filter: blur(4px);
+      }
+
+      /* Spinner + check animado */
+      .loader {
+        width: 52px; height: 52px;
+        border: 3px solid rgba(255,255,255,.2);
+        border-top-color: #fff;
+        border-radius: 50%;
+        animation: spin 0.9s linear infinite;
+      }
+      @keyframes spin { to { transform: rotate(360deg); } }
+
+      .check-burst {
+        /* Tamanho responsivo (40–64px) */
+        width: clamp(40px, 9vw, 64px);
+        height: clamp(40px, 9vw, 64px);
+
+        /* Não deixar “amassar” dentro do flex */
+        flex-shrink: 0;
+        min-width: clamp(40px, 9vw, 64px);
+        min-height: clamp(40px, 9vw, 64px);
+
+        /* Mantém círculo perfeito e visual */
+        aspect-ratio: 1 / 1;
+        border-radius: 50%;
+        background: radial-gradient(circle at 30% 30%, #b3d7ff 0, #4ea1ff 20%, #0e2f50 70%);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 8px 28px rgba(0, 0, 0, .35), inset 0 0 0 2px rgba(255, 255, 255, .12);
+        animation: popIn .45s ease-out both;
+      }
+
+      /* Ícone escala junto (opcional) */
+      .check-burst svg { width: 55%; height: 55%; }
+
+      /* Superfície sólida/legível para modais (quase opaca) */
+      .navy-surface-solid {
+        background: linear-gradient(180deg, rgba(12,23,38,.96), rgba(8,16,28,.94));
+        backdrop-filter: blur(8px) saturate(115%);
+        -webkit-backdrop-filter: blur(8px) saturate(115%);
+        border: 1px solid rgba(255,255,255,.12);
+        border-radius: 1rem;
+        box-shadow:
+          0 12px 36px rgba(0,0,0,.45),
+          inset 0 0 0 1px rgba(255,255,255,.05);
+      }
+      
     </style>
 </head>
 <body class="bg-gray-50">
     <!-- Navigation -->
     <nav class="navy-bg text-white py-4 px-6 sticky top-0 z-50 shadow-md">
-        <div class="container mx-auto flex justify-between items-center">
-            <div class="flex items-center space-x-2">
-                <i class="fas fa-car text-2xl gold-text"></i>
-                <span class="text-xl font-bold">MYLUX<span class="gold-text">CARS</span></span>
+        <div class="mx-full flex justify-between items-center">
+           <div class="flex items-center space-x-2">
+              <!-- Brand / Logo -->
+              <a href="#home" class="inline-flex items-center gap-3" aria-label="MyLuxCars">
+                <img
+                  src="assets/myluxcars-logo.png"
+                  sizes="(max-width: 640px) 160px, (max-width: 1024px) 200px, 240px"
+                  alt="MyLuxCars"
+                  class="h-7 md:h-7 w-auto select-none"
+                />
+              </a>
             </div>
             <div class="hidden md:flex space-x-6 items-center">
-                <a href="#fleet" class="hover:text-gold-500 transition-all">Our Fleet</a>
+                <a href="#" id="navLookup" class="hidden md:inline text-white/90 hover:text-white">
+                Consultar Reserva</a>
+                <a href="#fleet" class="hover:text-gold-500 transition-all">Frota</a>
                 <a href="#" 
                     onclick="openLocationsModal()"
                     class="hover:text-gold-500 transition-all">
-                    Service Areas
+                    Áreas Atendidas
                 </a>
                 <a href="#" 
                      onclick="openBenefitsModal()" 
                      cclass="hover:text-gold-500 transition-all">
-                    Why Us
+                    Porque Nós
                 </a>
-                <div class="flex space-x-2 ml-4">
+                <!--<div class="flex space-x-2 ml-4">
                     <button class="px-3 py-1 border border-white rounded hover:bg-white hover:navy-text transition-all">EN</button>
                     <button class="px-3 py-1 border border-white rounded hover:bg-white hover:navy-text transition-all">PT</button>
                     <button class="px-3 py-1 border border-white rounded hover:bg-white hover:navy-text transition-all">ES</button>
-                </div>
+                </div>-->
             </div>
-            <button class="md:hidden text-xl">
-                <i class="fas fa-bars"></i>
-            </button>
-        </div>
+          <button id="mobileMenuBtn" class="md:hidden rounded text-white/90" aria-label="Abrir menu" aria-expanded="false">
+            <i class="fa-solid fa-bars text-2xl"></i>
+          </button>
+       </div>
     </nav>
 
+  <!-- Menu Mobile -->
+  <div id="mobileMenu" class="fixed inset-0 z-50 hidden">
+    <!-- fundo escuro para fechar ao clicar -->
+    <div id="mobileMenuOverlay" class="absolute inset-0 bg-black/60"></div>
+
+    <!-- painel do menu -->
+    <nav class="absolute top-0 right-0 h-[40%] w-64 navy-surface-solid text-white p-6 flex flex-col gap-3">
+      <button id="mobileMenuClose" class="self-end -mr-2 p-2 text-white/80" aria-label="Fechar menu">
+        <i class="fa-solid fa-xmark text-2xl"></i>
+      </button>
+      <a href="#lookup" id="mobileLookupLink" class="py-2 border-b border-white/10">Consultar Reserva</a>
+      <a href="#fleet" class="py-2 border-b border-white/10">Frotas</a>
+      <a href="#" 
+        onclick="openLocationsModal()"
+        class="hover:text-gold-500 transition-all">
+        Áreas Atendidas
+      </a>
+      <a href="#" 
+         onclick="openBenefitsModal()" 
+         cclass="hover:text-gold-500 transition-all">
+        Porque Nós
+      </a>
+      <a href="#footer" class="py-2 border-b border-white/10">Contato</a>
+    </nav>
+  </div>
+  
     <!-- Hero Section -->
-    <section class="hero-image text-white py-20 md:py-32 px-6">
+    <section id="home" class="hero-image text-white py-20 md:py-32 px-6">
         <div class="container mx-auto text-center">
-            <h1 class="text-4xl md:text-6xl font-bold mb-6">Premium cars.<br>
-                Delivered to you - <span class="gold-text">anytime, anywhere.</span></h1>
-            <p class="text-xl md:text-2xl mb-8 max-w-2xl mx-auto">Orlando, FL</p>
-            <a href="#fleet" class="gold-bg navy-text font-bold py-3 px-8 rounded-full text-lg hover:bg-yellow-700 hover:text-white transition-all inline-block">Choose Your Car</a>
+            <h1 class="text-5xl md:text-5xl font-bold mb-5">Aluguel de carros premium em Orlando<br>
+                Entregamos <span class="gold-text">onde </span> e <span class="gold-text">quando </span> quiser</h1>
+            <a href="#fleet" class="gold-bg navy-text font-bold py-3 px-8 rounded-full text-lg hover:bg-yellow-700 hover:text-white transition-all inline-block">Selecione seu Carro</a>
         </div>
     </section>
 <!-- Fleet Section -->
     <section id="fleet" class="py-16 px-6 bg-gray-50">
       <div class="container mx-auto">
-        <h2 class="text-3xl font-bold text-center navy-text mb-12">Our Premium Fleet</h2>
+        <h2 class="text-3xl font-bold text-center navy-text mb-12">Nossa frota</h2>
           
         <div class="relative">
             <!-- CONTROLES NO TOPO DIREITO -->
@@ -247,7 +387,7 @@
               <div class="car-card bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all">
                 <div class="relative h-48">
                   <img
-                    src= "https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                    src= "/assets/cars/toyota-camry.avif"
                     alt="Toyota Camry"
                     class="w-full h-full object-cover card-image"
                     loading="lazy"
@@ -255,25 +395,178 @@
                   />
                   <div class="hidden absolute inset-0 skeleton"></div>
                 </div>
-                <div class="p-6">
+                <div class="p-4">
                   <h3 class="text-xl font-bold navy-text mb-2">Toyota Camry</h3>
                   <div class="flex justify-between text-gray-600 mb-4">
-                    <span><i class="fas fa-calendar-alt mr-1"></i> 2023–2025</span>
-                    <span><i class="fas fa-users mr-1"></i> 5 seats</span>
-                    <span><i class="fas fa-suitcase mr-1"></i> 3 luggage</span>
+                    <span><i class="fas fa-calendar-alt mr-1"></i> 2025</span>
+                    <span><i class="fas fa-users mr-1"></i> 5 lugares</span>
+                    <span><i class="fas fa-suitcase mr-1"></i> 3 malas</span>
                   </div>
                   <div class="flex justify-between items-center">
-                    <span class="text-2xl font-bold gold-text">$45<small class="text-gray-500 text-sm">/day</small></span>
+                    <span class="text-2xl font-bold gold-text">$45<small class="text-gray-500 text-sm">/diária</small></span>
+                   <!-- Para chamar o modal anterir tento o sistema completo de pagamento usar a funcao showAvailabilityModal --> 
                     <button
                         class="navy-bg text-white py-2 px-4 rounded hover:bg-blue-900 transition-all"
-                        onclick="showAvailabilityModal(this)"
+onclick="openFullBooking(this)"
                         data-model="Toyota Camry"
-                        data-img="https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                        data-img="/assets/cars/toyota-camry.avif"
                         data-seats="5"
                         data-luggage="3"
-                        data-price="45"
+                        data-price="60"
                       >
-                        Check Availability
+                        Reservar
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Ford F-150 Raptor -->
+            <div class="swiper-slide">
+              <div class="car-card bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all">
+                <div class="relative h-48">
+                  <img
+                    src="/assets/cars/f-150-raptor.jpeg"
+                    alt="Ford F-150 Raptor"
+                    class="w-full h-full object-cover card-image"
+                    loading="lazy"
+                    onerror="this.classList.add('hidden'); this.nextElementSibling.classList.remove('hidden');"
+                  />
+                  <div class="hidden absolute inset-0 skeleton"></div>
+                </div>
+                <div class="p-4">
+                  <h3 class="text-xl font-bold navy-text mb-2">Ford F-150 Raptor</h3>
+                  <div class="flex justify-between text-gray-600 mb-4">
+                    <span><i class="fas fa-calendar-alt mr-1"></i> 2025</span>
+                    <span><i class="fas fa-users mr-1"></i> 5 lugares</span>
+                    <span><i class="fas fa-suitcase mr-1"></i> 4 malas</span>
+                  </div>
+                  <div class="flex justify-between items-center">
+                    <span class="text-2xl font-bold gold-text">$200<small class="text-gray-500 text-sm">/diária</small></span>
+                       <button
+                            class="navy-bg text-white py-2 px-4 rounded hover:bg-blue-900 transition-all"
+                            onclick="openFullBooking(this)"
+                            data-model="Ford F-150 Raptor"
+                            data-img="/assets/cars/f-150-raptor.jpeg"
+                            data-seats="5"
+                            data-luggage="4"
+                            data-price="200"
+                          >
+                            Reservar
+                        </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- GMC Yukon -->
+            <div class="swiper-slide">
+              <div class="car-card bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all">
+                <div class="relative h-48">
+                  <img
+                    src="/assets/cars/GMC-yukon.avif"
+                    alt="GMC Yukon 2025"
+                    class="w-full h-full object-cover card-image"
+                    loading="lazy"
+                    onerror="this.classList.add('hidden'); this.nextElementSibling.classList.remove('hidden');"
+                  />
+                  <div class="hidden absolute inset-0 skeleton"></div>
+                </div>
+                <div class="p-4">
+                  <h3 class="text-xl font-bold navy-text mb-2">GMC Yukon</h3>
+                  <div class="flex justify-between text-gray-600 mb-4">
+                    <span><i class="fas fa-calendar-alt mr-1"></i> 2025</span>
+                    <span><i class="fas fa-users mr-1"></i> 7–8 lugares</span>
+                    <span><i class="fas fa-suitcase mr-1"></i> 5 malas</span>
+                  </div>
+                  <div class="flex justify-between items-center">
+                    <span class="text-2xl font-bold gold-text">$200<small class="text-gray-500 text-sm">/diária</small></span>
+                      <button
+                          class="navy-bg text-white py-2 px-4 rounded hover:bg-blue-900 transition-all"
+                          onclick="openFullBooking(this)"
+                          data-model="GMC Yukon"
+                          data-img="/assets/cars/GMC-yukon.avif"
+                          data-seats="8"
+                          data-luggage="6"
+                          data-price="200"
+                        >
+                          Reservar
+                      </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Mercedes-Maybach EQS 680 SUV -->
+            <div class="swiper-slide">
+              <div class="car-card bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all">
+                <div class="relative h-48">
+                  <img
+                    src="/assets/cars/eqs-680-suv.jpg"
+                    alt="Mercedes EQS 680 Maybach"
+                    class="w-full h-full object-cover card-image"
+                    loading="lazy"
+                    onerror="this.classList.add('hidden'); this.nextElementSibling.classList.remove('hidden');"
+                  />
+                  <div class="hidden absolute inset-0 skeleton"></div>
+                </div>
+                <div class="p-4">
+                  <h3 class="text-xl font-bold navy-text mb-2">Mercedes EQS 680 Maybach</h3>
+                  <div class="flex justify-between text-gray-600 mb-4">
+                    <span><i class="fas fa-calendar-alt mr-1"></i> 2024</span>
+                    <span><i class="fas fa-users mr-1"></i> 4–5 lugares</span>
+                    <span><i class="fas fa-suitcase mr-1"></i> 3 malas</span>
+                  </div>
+                  <div class="flex justify-between items-center">
+                    <span class="text-2xl font-bold gold-text">$1000<small class="text-gray-500 text-sm">/diária</small></span>
+                       <button
+                            class="navy-bg text-white py-2 px-4 rounded hover:bg-blue-900 transition-all"
+                            onclick="openFullBooking(this)"
+                            data-model="Mercedes EQS 680 Maybach"
+                            data-img="/assets/cars/eqs-680-suv.jpg"
+                            data-seats="5"
+                            data-luggage="3"
+                            data-price="1000"
+                          >
+                            Reservar
+                        </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Toyota Sienna Hybrid XLE -->
+            <div class="swiper-slide">
+              <div class="car-card bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all">
+                <div class="relative h-48">
+                  <img
+                    src="/assets/cars/sienna-hybrid-xle.avif"
+                    alt="Toyota Sienna Hybrid XLE"
+                    class="w-full h-full object-cover card-image"
+                    loading="lazy"
+                    onerror="this.classList.add('hidden'); this.nextElementSibling.classList.remove('hidden');"
+                  />
+                  <div class="hidden absolute inset-0 skeleton"></div>
+                </div>
+                <div class="p-4">
+                  <h3 class="text-xl font-bold navy-text mb-2">Sienna Hybrid XLE</h3>
+                  <div class="flex justify-between text-gray-600 mb-4">
+                    <span><i class="fas fa-calendar-alt mr-1"></i> 2025</span>
+                    <span><i class="fas fa-users mr-1"></i> 7 lugares</span>
+                    <span><i class="fas fa-suitcase mr-1"></i> 5 malas</span>
+                  </div>
+                  <div class="flex justify-between items-center">
+                    <span class="text-2xl font-bold gold-text">$160<small class="text-gray-500 text-sm">/diária</small></span>
+                    <button
+                      class="navy-bg text-white py-2 px-4 rounded hover:bg-blue-900 transition-all"
+                      onclick="openFullBooking(this)"
+                      data-model="Sienna Hybrid XLE"
+                      data-img="/assets/cars/sienna-hybrid-xle.avif"
+                      data-seats="7"
+                      data-luggage="5"
+                      data-price="160"
+                    >
+                      Reservar
                     </button>
                   </div>
                 </div>
@@ -285,7 +578,7 @@
               <div class="car-card bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all">
                 <div class="relative h-48">
                   <img
-                    src="https://img1.icarros.com/dbimg/imgadicionalnoticia/4/84896_1.webp"
+                    src="/assets/cars/chevrolet-suburban.jpeg"
                     alt="Chevrolet Suburban"
                     class="w-full h-full object-cover card-image"
                     loading="lazy"
@@ -293,144 +586,69 @@
                   />
                   <div class="hidden absolute inset-0 skeleton"></div>
                 </div>
-                <div class="p-6">
-                  <h3 class="text-xl font-bold navy-text mb-2">Chevrolet Suburban</h3>
+                <div class="p-4">
+                  <h3 class="text-xl font-bold navy-text mb-2">Suburban</h3>
                   <div class="flex justify-between text-gray-600 mb-4">
-                    <span><i class="fas fa-calendar-alt mr-1"></i> 2024–2025</span>
-                    <span><i class="fas fa-users mr-1"></i> 7–8 seats</span>
-                    <span><i class="fas fa-suitcase mr-1"></i> 5 luggage</span>
+                    <span><i class="fas fa-calendar-alt mr-1"></i> 2025</span>
+                    <span><i class="fas fa-users mr-1"></i> 7 lugares</span>
+                    <span><i class="fas fa-suitcase mr-1"></i> 5 malas</span>
                   </div>
                   <div class="flex justify-between items-center">
-                    <span class="text-2xl font-bold gold-text">$200<small class="text-gray-500 text-sm">/day</small></span>
-                      <button
-                          class="navy-bg text-white py-2 px-4 rounded hover:bg-blue-900 transition-all"
-                          onclick="showAvailabilityModal(this)"
-                          data-model="Chevrolet Suburban"
-                          data-img="https://img1.icarros.com/dbimg/imgadicionalnoticia/4/84896_1.webp"
-                          data-seats="8"
-                          data-luggage="5"
-                          data-price="200"
-                        >
-                          Check Availability
-                      </button>
+                    <span class="text-2xl font-bold gold-text">$280<small class="text-gray-500 text-sm">/diária</small></span>
+                    <button
+                      class="navy-bg text-white py-2 px-4 rounded hover:bg-blue-900 transition-all"
+                      onclick="openFullBooking(this)"
+                      data-model="Suburban"
+                      data-img="/assets/cars/chevrolet-suburban.jpeg"
+                      data-seats="7"
+                      data-luggage="5"
+                      data-price="280"
+                    >
+                      Reservar
+                    </button>
                   </div>
                 </div>
               </div>
             </div>
 
-            <!-- Mercedes EQS 680 Maybach -->
+            <!-- Ford Mustang Convertible -->
             <div class="swiper-slide">
               <div class="car-card bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all">
                 <div class="relative h-48">
                   <img
-                    src="https://boulevard.co/wp-content/uploads/2024/11/mercedes-maybach-eqs-680-d1a.png"
-                    alt="Mercedes EQS 680 Maybach"
+                    src="/assets/cars/ford-mustang-convertible.jpg"
+                    alt="Ford Mustang Convertible"
                     class="w-full h-full object-cover card-image"
                     loading="lazy"
                     onerror="this.classList.add('hidden'); this.nextElementSibling.classList.remove('hidden');"
                   />
                   <div class="hidden absolute inset-0 skeleton"></div>
                 </div>
-                <div class="p-6">
-                  <h3 class="text-xl font-bold navy-text mb-2">Mercedes EQS 680 Maybach</h3>
+                <div class="p-4">
+                  <h3 class="text-xl font-bold navy-text mb-2">Mustang Convertible</h3>
                   <div class="flex justify-between text-gray-600 mb-4">
-                    <span><i class="fas fa-calendar-alt mr-1"></i> 2024–2025</span>
-                    <span><i class="fas fa-users mr-1"></i> 4–5 seats</span>
-                    <span><i class="fas fa-suitcase mr-1"></i> 3 luggage</span>
+                    <span><i class="fas fa-calendar-alt mr-1"></i> 2025</span>
+                    <span><i class="fas fa-users mr-1"></i> 4 lugares</span>
+                    <span><i class="fas fa-suitcase mr-1"></i> 2 malas</span>
                   </div>
                   <div class="flex justify-between items-center">
-                    <span class="text-2xl font-bold gold-text">$1000<small class="text-gray-500 text-sm">/day</small></span>
-                       <button
-                            class="navy-bg text-white py-2 px-4 rounded hover:bg-blue-900 transition-all"
-                            onclick="showAvailabilityModal(this)"
-                            data-model="Mercedes EQS 680 Maybach"
-                            data-img="https://boulevard.co/wp-content/uploads/2024/11/mercedes-maybach-eqs-680-d1a.png"
-                            data-seats="5"
-                            data-luggage="3"
-                            data-price="1000"
-                          >
-                            Check Availability
-                        </button>
+                    <span class="text-2xl font-bold gold-text">$220<small class="text-gray-500 text-sm">/diária</small></span>
+                    <button
+                      class="navy-bg text-white py-2 px-4 rounded hover:bg-blue-900 transition-all"
+                      onclick="openFullBooking(this)"
+                      data-model="Mustang Convertible"
+                      data-img="/assets/cars/ford-mustang-convertible.jpg"
+                      data-seats="4"
+                      data-luggage="2"
+                      data-price="220"
+                    >
+                      Reservar
+                    </button>
                   </div>
                 </div>
               </div>
             </div>
-
-            <!-- GMC Hummer EV -->
-            <div class="swiper-slide">
-              <div class="car-card bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all">
-                <div class="relative h-48">
-                  <img
-                    src="https://hips.hearstapps.com/hmg-prod/images/2024-gmc-hummer-ev-suv-308-6419ae7554a82.jpg?crop=0.646xw:0.546xh;0.213xw,0.262xh&resize=2048:*"
-                    alt="GMC Hummer EV"
-                    class="w-full h-full object-cover card-image"
-                    loading="lazy"
-                    onerror="this.classList.add('hidden'); this.nextElementSibling.classList.remove('hidden');"
-                  />
-                  <div class="hidden absolute inset-0 skeleton"></div>
-                </div>
-                <div class="p-6">
-                  <h3 class="text-xl font-bold navy-text mb-2">GMC Hummer EV</h3>
-                  <div class="flex justify-between text-gray-600 mb-4">
-                    <span><i class="fas fa-calendar-alt mr-1"></i> 2024–2025</span>
-                    <span><i class="fas fa-users mr-1"></i> 5 seats</span>
-                    <span><i class="fas fa-suitcase mr-1"></i> 4 luggage</span>
-                  </div>
-                  <div class="flex justify-between items-center">
-                    <span class="text-2xl font-bold gold-text">$500<small class="text-gray-500 text-sm">/day</small></span>
-                      <button
-                          class="navy-bg text-white py-2 px-4 rounded hover:bg-blue-900 transition-all"
-                          onclick="showAvailabilityModal(this)"
-                          data-model="GMC Hummer EV"
-                          data-img="https://hips.hearstapps.com/hmg-prod/images/2024-gmc-hummer-ev-suv-308-6419ae7554a82.jpg?crop=0.646xw:0.546xh;0.213xw,0.262xh&resize=2048:*"
-                          data-seats="5"
-                          data-luggage="4"
-                          data-price="500"
-                        >
-                          Check Availability
-                      </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Ford F-150 Raptor -->
-            <div class="swiper-slide">
-              <div class="car-card bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all">
-                <div class="relative h-48">
-                  <img
-                    src="https://images.unsplash.com/photo-1614484393797-257ee1d83a1e?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                    alt="Ford F-150 Raptor"
-                    class="w-full h-full object-cover card-image"
-                    loading="lazy"
-                    onerror="this.classList.add('hidden'); this.nextElementSibling.classList.remove('hidden');"
-                  />
-                  <div class="hidden absolute inset-0 skeleton"></div>
-                </div>
-                <div class="p-6">
-                  <h3 class="text-xl font-bold navy-text mb-2">Ford F-150 Raptor</h3>
-                  <div class="flex justify-between text-gray-600 mb-4">
-                    <span><i class="fas fa-calendar-alt mr-1"></i> 2023–2025</span>
-                    <span><i class="fas fa-users mr-1"></i> 5 seats</span>
-                    <span><i class="fas fa-suitcase mr-1"></i> 4 luggage</span>
-                  </div>
-                  <div class="flex justify-between items-center">
-                    <span class="text-2xl font-bold gold-text">$200<small class="text-gray-500 text-sm">/day</small></span>
-                       <button
-                            class="navy-bg text-white py-2 px-4 rounded hover:bg-blue-900 transition-all"
-                            onclick="showAvailabilityModal(this)"
-                            data-model="Ford F-150 Raptor"
-                            data-img="https://images.unsplash.com/photo-1614484393797-257ee1d83a1e?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                            data-seats="5"
-                            data-luggage="4"
-                            data-price="200"
-                          >
-                            Check Availability
-                        </button>
-                  </div>
-                </div>
-              </div>
-            </div>
+            
           </div>
         </div>
           <!-- Pagination -->
@@ -442,7 +660,7 @@
     <!-- Testimonials -->
     <section class="py-16 px-6 bg-white">
         <div class="container mx-auto">
-            <h2 class="text-3xl font-bold text-center navy-text mb-12">What Our Customers Say</h2>
+            <h2 class="text-3xl font-bold text-center navy-text mb-12">O que nossos clientes dizem</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div class="bg-gray-50 p-6 rounded-lg shadow">
                     <div class="flex items-center mb-4">
@@ -454,7 +672,7 @@
                             <i class="fas fa-star"></i>
                         </div>
                     </div>
-                    <p class="text-gray-600 mb-4">"The easiest car rental experience ever! No hidden fees and the Cadillac Escalade was perfect for our family vacation."</p>
+                    <p class="text-gray-600 mb-4">“A locação mais fácil de todas! Sem taxas escondidas. A Suburban foi perfeita para nossa viagem em família.”</p>
                     <div class="flex items-center">
                         <img src="https://randomuser.me/api/portraits/women/43.jpg" alt="Customer" class="w-10 h-10 rounded-full mr-3">
                         <div>
@@ -473,11 +691,11 @@
                             <i class="fas fa-star"></i>
                         </div>
                     </div>
-                    <p class="text-gray-600 mb-4">"Not having to pay a security deposit made this rental so much better than others. The Mercedes was spotless and luxurious."</p>
+                    <p class="text-gray-600 mb-4">“Não ter que pagar caução deixou essa locação muito melhor do que as outras. Carro estava impecável e luxuoso.”</p>
                     <div class="flex items-center">
                         <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Customer" class="w-10 h-10 rounded-full mr-3">
                         <div>
-                            <h4 class="font-semibold navy-text">John Rodriguez</h4>
+                            <h4 class="font-semibold navy-text">Juan Rodriguez</h4>
                             <p class="text-sm text-gray-500">From Colombia</p>
                         </div>
                     </div>
@@ -492,7 +710,7 @@
                             <i class="fas fa-star"></i>
                         </div>
                     </div>
-                    <p class="text-gray-600 mb-4">"Multilingual support was a lifesaver when we had questions. The Range Rover was perfect for exploring Orlando in style."</p>
+                    <p class="text-gray-600 mb-4">“O suporte em vários idiomas salvou quando tivemos dúvidas. O carro foi perfeito para conhecer Orlando com estilo.”</p>
                     <div class="flex items-center">
                         <img src="https://randomuser.me/api/portraits/women/65.jpg" alt="Customer" class="w-10 h-10 rounded-full mr-3">
                         <div>
@@ -508,12 +726,12 @@
     <!-- CTA Section -->
     <section class="navy-bg text-white py-16 px-6">
         <div class="container mx-auto text-center">
-            <a href="#fleet" class="gold-bg navy-text font-bold py-3 px-8 rounded-full text-lg hover:bg-yellow-700 hover:text-white transition-all inline-block">Choose Your Car Now</a>
+            <a href="#fleet" class="gold-bg navy-text font-bold py-3 px-8 rounded-full text-lg hover:bg-yellow-700 hover:text-white transition-all inline-block">Selecione seu Carro</a>
         </div>
     </section>
 
     <!-- Footer -->
-    <footer class="bg-gray-900 text-white py-12 px-6">
+    <footer id="footer" class="bg-gray-900 text-white py-12 px-6">
         <div class="container mx-auto">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
                 <div>
@@ -521,14 +739,14 @@
                         <i class="fas fa-car text-2xl gold-text"></i>
                         <span class="text-xl font-bold">MYLUX<span class="gold-text">CARS</span></span>
                     </div>
-                    <p class="text-gray-400 mb-4">Premium cars. Delivered to you, anytime, anywhere.</p>
+                    <p class="text-gray-400 mb-4">Aluguel de carros premium em Orlando. Entregamos onde e quando quiser.</p>
                 </div>
                 <div>
-                    <h3 class="text-lg font-semibold mb-4 gold-text">Quick Links</h3>
+                    <h3 class="text-lg font-semibold mb-4 gold-text">Links Rápidos</h3>
                     <ul class="space-y-2">
                         <li><a href="#" onclick="openLocationsModal()"
                              class="text-gray-400 hover:text-white transition-all">
-                            Service Areas
+                            Áreas Atendidas
                           </a>
                         </li>
                         <li><a href="#fleet" class="text-gray-400 hover:text-white transition-all">Upgrades</a></li>
@@ -537,13 +755,13 @@
                           <a href="#" 
                              onclick="openBenefitsModal()" 
                              class="text-gray-400 hover:text-white transition-all">
-                            Why Us
+                            Porque Nós
                           </a>
                         </li>
                     </ul>
                 </div>
                 <div>
-                    <h3 class="text-lg font-semibold mb-4 gold-text">Contact Us</h3>
+                    <h3 class="text-lg font-semibold mb-4 gold-text">Contato</h3>
                     <ul class="space-y-2 text-gray-400">
                         <li class="flex items-center"><i class="fas fa-map-marker-alt mr-2 gold-text"></i> Orlando, Florida</li>
                         <li class="flex items-center"><i class="fas fa-phone mr-2 gold-text"></i> +1 (407) 555-1212</li>
@@ -581,7 +799,7 @@
             <section id="benefits" class="py-2">
                 <div class="mx-auto">
                   <h2 class="text-xl md:text-2xl font-bold text-center text-[#0e2a47] mb-6">
-                    Why Choose MYLUXCARS
+                    Porque MYLUXCARS
                   </h2>
 
                 <!-- Grade responsiva: 1 / 2 / 3 colunas -->
@@ -591,9 +809,9 @@
                       <div class="text-[#C6A25A] text-2xl md:text-3xl mb-3">
                         <i class="fas fa-shield-alt"></i>
                       </div>
-                      <h3 class="text-base md:text-lg font-semibold text-[#0e2a47] mb-1">No Security Deposit</h3>
+                      <h3 class="text-base md:text-lg font-semibold text-[#0e2a47] mb-1">Sem Depósito Calção</h3>
                       <p class="text-sm md:text-[15px] text-gray-600">
-                        Enjoy your rental without worrying about large security deposits holding your funds.
+                        Aproveite sua locação sem se preocupar com grandes cauções prendendo o seu dinheiro.
                       </p>
                     </div>
 
@@ -601,9 +819,9 @@
                       <div class="text-[#C6A25A] text-2xl md:text-3xl mb-3">
                         <i class="fas fa-money-bill-wave"></i>
                       </div>
-                      <h3 class="text-base md:text-lg font-semibold text-[#0e2a47] mb-1">No IOF Tax</h3>
+                      <h3 class="text-base md:text-lg font-semibold text-[#0e2a47] mb-1">Sem taxa de IOF</h3>
                       <p class="text-sm md:text-[15px] text-gray-600">
-                        We've eliminated the IOF tax, saving you money on your international rental.
+                        Eliminamos o IOF, garantindo mais economia na sua locação internacional.
                       </p>
                     </div>
 
@@ -611,9 +829,9 @@
                       <div class="text-[#C6A25A] text-2xl md:text-3xl mb-3">
                         <i class="fas fa-car"></i>
                       </div>
-                      <h3 class="text-base md:text-lg font-semibold text-[#0e2a47] mb-1">Free Orlando Delivery</h3>
+                      <h3 class="text-base md:text-lg font-semibold text-[#0e2a47] mb-1">Entrega gratuíta em Orlando</h3>
                       <p class="text-sm md:text-[15px] text-gray-600">
-                        We deliver and pick up your car anywhere in Orlando - no extra fees.
+                        Entregamos e retiramos seu carro em qualquer lugar de Orlando — sem taxas extras.
                       </p>
                     </div>
 
@@ -621,9 +839,9 @@
                       <div class="text-[#C6A25A] text-2xl md:text-3xl mb-3">
                         <i class="fas fa-baby-carriage"></i>
                       </div>
-                      <h3 class="text-base md:text-lg font-semibold text-[#0e2a47] mb-1">Child Seats Included</h3>
+                      <h3 class="text-base md:text-lg font-semibold text-[#0e2a47] mb-1">Cadeirinha inclusa</h3>
                       <p class="text-sm md:text-[15px] text-gray-600">
-                        All our family vehicles come with child safety seats at no additional cost.
+                        Todos os nossos carros familiares incluem cadeirinhas infantis sem custo adicional.
                       </p>
                     </div>
 
@@ -631,9 +849,9 @@
                       <div class="text-[#C6A25A] text-2xl md:text-3xl mb-3">
                         <i class="fas fa-mobile-alt"></i>
                       </div>
-                      <h3 class="text-base md:text-lg font-semibold text-[#0e2a47] mb-1">Simple Web Check-in</h3>
+                      <h3 class="text-base md:text-lg font-semibold text-[#0e2a47] mb-1">Web Check-in</h3>
                       <p class="text-sm md:text-[15px] text-gray-600">
-                        Complete your check-in online before arrival for a faster, contactless experience.
+                        Finalize seu check-in online antes da chegada para uma experiência mais rápida e sem contato.
                       </p>
                     </div>
 
@@ -641,9 +859,9 @@
                       <div class="text-[#C6A25A] text-2xl md:text-3xl mb-3">
                         <i class="fas fa-globe-americas"></i>
                       </div>
-                      <h3 class="text-base md:text-lg font-semibold text-[#0e2a47] mb-1">Multilingual Support</h3>
+                      <h3 class="text-base md:text-lg font-semibold text-[#0e2a47] mb-1">Supporte Multi-idioma</h3>
                       <p class="text-sm md:text-[15px] text-gray-600">
-                        Our team speaks English, Portuguese, and Spanish to assist you seamlessly.
+                        Nossa equipe fala inglês, português e espanhol para atender você com total facilidade.
                       </p>
                     </div>
                   </div>
@@ -654,62 +872,91 @@
       </div>
     </div>
 
-    <!-- Services Areas Modal -->
+    <!-- Services Areas Modal com mapa 
     <div id="locationsModal"
          class="fixed inset-0 hidden z-50 items-center justify-center bg-black/60 backdrop-blur-sm">
       <div class="relative w-11/12 max-w-5xl max-h-[88vh] bg-white rounded-2xl shadow-2xl p-4 md:p-6 flex flex-col animate-zoom">
-        <!-- Header -->
+
         <div class="flex items-center justify-between gap-4 mb-3">
           <h2 class="text-lg md:text-2xl font-bold text-[#0e2a47]">
-            Service Areas — MYLUXCARS
+            Área de atendimento — MYLUXCARS
           </h2>
           <button onclick="closeLocationsModal()" aria-label="Fechar modal"
                   class="rounded-full p-2 text-gray-600 hover:text-white hover:bg-red-500 transition">
             <i class="fas fa-times"></i>
           </button>
         </div>
-
-        <!-- Controles -->
         <div class="flex flex-wrap items-center gap-2 md:gap-3 mb-3">
-          <span class="text-sm text-gray-600 mr-2">Show:</span>
+          <span class="text-sm text-gray-600 mr-2">Mostrar:</span>
           <button id="btnAirports"
                   class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 bg-white hover:bg-gray-50 data-[active=true]:bg-[#0e2a47] data-[active=true]:text-white transition"
                   data-active="true"
                   onclick="toggleGroup('airports')">
-            Airports ✈️
+            Aeroportos ✈️
           </button>
           <button id="btnCities"
                   class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 bg-white hover:bg-gray-50 data-[active=true]:bg-[#0e2a47] data-[active=true]:text-white transition"
                   data-active="true"
                   onclick="toggleGroup('cities')">
-            Cities 📍
+            Cidades 📍
           </button>
 
           <div class="ml-auto flex items-center gap-2 text-xs md:text-sm text-gray-600">
             <span class="inline-flex items-center gap-1">
-              <span class="h-3 w-3 inline-block rounded-full bg-blue-600"></span> Airport
+              <span class="h-3 w-3 inline-block rounded-full bg-blue-600"></span> Aeroporto
             </span>
             <span class="inline-flex items-center gap-1">
-              <span class="h-3 w-3 inline-block rounded-full bg-amber-600"></span> City
+              <span class="h-3 w-3 inline-block rounded-full bg-amber-600"></span> Cidade
             </span>
             <button onclick="fitAllMarkers()"
                     class="ml-2 px-3 py-1.5 rounded-lg border border-gray-200 hover:bg-gray-50 transition">
-                Fit All
+                Ajustar
             </button>
           </div>
         </div>
-
-        <!-- Mapa -->
         <div id="serviceMap" class="rounded-xl overflow-hidden border border-gray-200"
              style="height: 65vh; min-height: 360px;"></div>
-
-        <!-- Rodapé opcional -->
         <div class="mt-3 text-center text-xs text-gray-500">
-            Service areas subject to availability. Contact our team for specific confirmations.
+          Áreas de atendimento sujeitas à disponibilidade. Entre em contato com nossa equipe para confirmações específicas.
+        </div>
+      </div>
+    </div>-->
+
+  <!-- Modal: Locations -->
+  <div id="locationsModal" class="fixed inset-0 hidden z-[120] overflow-y-auto">
+    <div class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+    <div class="relative z-10 min-h-full w-full flex items-center justify-center p-4">
+      <div role="dialog" aria-modal="true" aria-labelledby="locationsTitle"
+           class="navy-surface-solid text-white w-[min(92vw,600px)] rounded-2xl shadow-2xl p-8 text-center">
+
+        <!-- Header -->
+        <div class="mb-4 flex justify-between items-center">
+          <h2 id="locationsTitle" class="text-2xl font-semibold">Áreas de Entrega</h2>
+          <button onclick="closeLocationsModal()" class="text-white/70 hover:text-white text-xl" aria-label="Fechar">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <!-- Conteúdo -->
+        <div class="space-y-4">
+          <p class="text-lg leading-relaxed">
+            Levamos o carro até você em um raio de <strong class="gold-text">30 milhas de Orlando</strong>,
+            com opção de entrega também nos aeroportos de <strong>Tampa</strong> e <strong>Miami</strong>
+            <span class="text-white/70">(sujeito a taxa adicional)</span>.
+          </p>
+        </div>
+
+        <!-- Botão -->
+        <div class="mt-6">
+          <button onclick="closeLocationsModal()" id="locationsOk"
+            class="px-6 py-2 rounded-lg bg-white text-slate-900 font-medium hover:opacity-95">
+            Entendido
+          </button>
         </div>
       </div>
     </div>
-    
+  </div>
+  
     <!-- Availability Modal -->
     <div id="availabilityModal"
          class="fixed inset-0 bg-black bg-opacity-50 flex items-start sm:items-center justify-center z-50 hidden overflow-y-auto p-4 min-h-[100dvh] pt-safe">
@@ -717,7 +964,7 @@
       <div class="bg-white rounded-2xl w-full max-w-3xl mx-4 md:mx-6 shadow-2xl overflow-hidden">
         <!-- Cabeçalho -->
         <div class="flex items-center justify-between px-5 md:px-6 py-4 border-b">
-          <h3 class="text-lg md:text-xl font-bold navy-text" id="modalCarTitle">Check Availability</h3>
+          <h3 class="text-lg md:text-xl font-bold navy-text" id="modalCarTitle">Reservar</h3>
           <button onclick="closeModal()" class="rounded-full p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition">
             <i class="fas fa-times"></i>
           </button>
@@ -736,10 +983,10 @@
                      alt="Selected car"
                      class="w-20 h-20 object-cover rounded-lg mr-4">
                 <div class="min-w-0">
-                  <h5 class="font-semibold navy-text truncate" id="selectedCarModel">Vehicle</h5>
+                  <h5 class="font-semibold navy-text truncate" id="selectedCarModel">Veículo</h5>
                   <div class="flex flex-wrap gap-x-3 text-gray-600 text-sm">
-                    <span id="selectedSeats"><i class="fas fa-users mr-1"></i> — seats</span>
-                    <span id="selectedLuggage"><i class="fas fa-suitcase mr-1"></i> — luggage</span>
+                    <span id="selectedSeats"><i class="fas fa-users mr-1"></i> — lugares</span>
+                    <span id="selectedLuggage"><i class="fas fa-suitcase mr-1"></i> — malas</span>
                   </div>
                 </div>
               </div>
@@ -748,15 +995,15 @@
               <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
                 <h4 class="font-semibold navy-text mb-3">Price Summary</h4>
                 <div class="flex justify-between text-sm mb-2">
-                  <span class="text-gray-600"><span id="daysCount">0</span> day(s) rental</span>
+                  <span class="text-gray-600"><span id="daysCount">0</span> diária(s)</span>
                   <span class="font-semibold">$<span id="calcSubtotal">0</span>.00</span>
                 </div>
                 <div class="flex justify-between text-sm mb-2">
-                  <span class="text-gray-600">No IOF Tax</span>
+                  <span class="text-gray-600">Sem taxa de IOF</span>
                   <span class="font-semibold text-green-600">$0.00</span>
                 </div>
                 <div class="flex justify-between text-sm mb-2">
-                  <span class="text-gray-600">No Security Deposit</span>
+                  <span class="text-gray-600">Sem Depósito Calção</span>
                   <span class="font-semibold text-green-600">$0.00</span>
                 </div>
                 <div class="border-t pt-2 mt-2 flex justify-between">
@@ -770,7 +1017,7 @@
             <div class="space-y-4">
               <!-- Calendário inline (range) -->
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Select your dates</label>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Selecione as datas</label>
                 <div id="dateCalendar"
                      class="rounded-xl border border-gray-200 overflow-hidden max-h-[55vh] sm:max-h-none overflow-y-auto ios-scroll
                             w-full max-w-full mx-auto">
@@ -779,12 +1026,12 @@
               <!-- Campos preenchidos automaticamente -->
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label class="block text-sm text-gray-700 mb-1">Pick-Up Date</label>
+                  <label class="block text-sm text-gray-700 mb-1">Data de Retirada/label>
                   <input id="pickupDate" type="text" readonly
                          class="w-full p-2 border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-yellow-500">
                 </div>
                 <div>
-                  <label class="block text-sm text-gray-700 mb-1">Drop-Off Date</label>
+                  <label class="block text-sm text-gray-700 mb-1">Data de Devolução</label>
                   <input id="dropoffDate" type="text" readonly
                          class="w-full p-2 border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-yellow-500">
                 </div>
@@ -805,22 +1052,22 @@
     <div id="paymentModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60] hidden">
         <div class="bg-white rounded-lg p-6 w-full max-w-2xl mx-4 max-h-[90vh] sm:max-h-[85vh] overflow-y-auto ios-scroll">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-bold navy-text">Complete Your Reservation</h3>
+                <h3 class="text-xl font-bold navy-text">Complete sua Reserva</h3>
                 <button onclick="closePaymentModal()" class="text-gray-500 hover:text-gray-700">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <h4 class="font-semibold navy-text mb-4">Payment Information</h4>
+                    <h4 class="font-semibold navy-text mb-4">Informação de Pagamento</h4>
                     <div class="space-y-4">
                         <div>
-                            <label class="block text-gray-700 mb-2">Card Number</label>
+                            <label class="block text-gray-700 mb-2">Número do Cartão</label>
                             <input type="text" placeholder="1234 5678 9012 3456" class="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-gold-500">
                         </div>
                         <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-gray-700 mb-2">Expiry Date</label>
+                                <label class="block text-gray-700 mb-2">Data de Expiração</label>
                                 <input type="text" placeholder="MM/YY" class="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-gold-500">
                             </div>
                             <div>
@@ -829,12 +1076,12 @@
                             </div>
                         </div>
                         <div>
-                            <label class="block text-gray-700 mb-2">Name on Card</label>
+                            <label class="block text-gray-700 mb-2">Nome do Cartão</label>
                             <input type="text" placeholder="John Doe" class="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-gold-500">
                         </div>
                     </div>
                     <div class="mt-6">
-                        <h4 class="font-semibold navy-text mb-2">Payment Methods</h4>
+                        <h4 class="font-semibold navy-text mb-2">Método de Pagamento</h4>
                         <div class="flex space-x-4">
                             <button class="p-2 border rounded hover:bg-gray-100 transition-all">
                                 <i class="fab fa-cc-stripe text-2xl text-blue-600"></i>
@@ -852,15 +1099,15 @@
                     </div>
                 </div>
                 <div>
-                    <h4 class="font-semibold navy-text mb-4">Reservation Summary</h4>
+                    <h4 class="font-semibold navy-text mb-4">Resumo da Reserva</h4>
                     <div class="mb-4">
                         <div class="flex items-center p-3 bg-gray-50 rounded mb-3">
                             <img src="https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80" alt="Car" class="w-16 h-16 object-cover rounded mr-4">
                             <div>
                                 <h5 class="font-bold navy-text" id="paymentCarModel">Cadillac Escalade</h5>
                                 <div class="flex text-gray-600 text-sm">
-                                    <span class="mr-3"><i class="fas fa-users mr-1"></i> 7 seats</span>
-                                    <span><i class="fas fa-suitcase mr-1"></i> 4 luggage</span>
+                                    <span class="mr-3"><i class="fas fa-users mr-1"></i> 7 lugares</span>
+                                    <span><i class="fas fa-suitcase mr-1"></i> 4 malas</span>
                                 </div>
                             </div>
                         </div>
@@ -933,7 +1180,341 @@
         </div>
     </div>
 
-    <script>
+  <!-- Full Booking Modal (novo) -->
+  <div id="fullBookingModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-[65] items-start sm:items-center justify-center overflow-y-auto p-4">
+    <div class="bg-white w-full max-w-5xl rounded-2xl shadow-2xl overflow-hidden animate-zoom">
+      <!-- Header -->
+      <div class="flex items-center justify-between px-5 md:px-6 py-4 border-b">
+        <h3 class="text-lg md:text-xl font-bold navy-text">Finalize sua Reserva</h3>
+        <button onclick="closeFullBooking()" class="rounded-full p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition" aria-label="Fechar">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <!-- Body -->
+      <div class="p-5 md:p-6 grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <div class="space-y-3 w-[90%]">
+          <!-- Datas -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Datas da locação</label>
+            <div id="fbDateCalendar" class="rounded-xl border border-gray-200 w-full max-w-[360px] mx-auto p-2"></div>
+            <div class="grid grid-cols-2 gap-2 mt-3">
+
+              <!-- Retirada -->
+              <div>
+                <label class="block text-sm text-gray-700 mb-1">Data de Retirada</label>
+                <input id="fbPickupDate" type="text" readonly class="w-full min-w-0 p-2 border rounded-lg bg-gray-50" />
+              </div>
+              <div>
+                <label class="block text-sm text-gray-700 mb-1">Horário</label>
+                <input id="fbPickupTime" type="text" class="w-full min-w-0 p-2 border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                   placeholder="09:00" />
+              </div>
+
+              <!-- Devolução -->
+              <div>
+                <label class="block text-sm text-gray-700 mb-1">Data de Devolução</label>
+                <input id="fbDropoffDate" type="text" readonly class="w-full min-w-0 p-2 border rounded-lg bg-gray-50" />
+              </div>
+              <div>
+                <label class="block text-sm text-gray-700 mb-1">Horário</label>
+                <input id="fbDropoffTime" type="text" class="w-full min-w-0 p-2 border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                   placeholder="18:00" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Endereços -->
+          <div class="space-y-3">
+            <div>
+              <label class="block text-sm text-gray-700 mb-1">Endereço de retirada (FL)</label>
+              <input id="fbPickupAddr" list="floridaAddresses" class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500" placeholder="Ex: Orlando International Airport (MCO), Orlando, FL" />
+              <p id="fbPickupWarn" class="hidden mt-1 text-xs text-red-600">Atendemos apenas endereços na Flórida (FL).</p>
+            </div>
+            <div>
+              <label class="block text-sm text-gray-700 mb-1">Endereço de devolução (FL)</label>
+              <input id="fbDropoffAddr" list="floridaAddresses" class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500" placeholder="Ex: Disney Springs, Lake Buena Vista, FL" />
+              <p id="fbDropoffWarn" class="hidden mt-1 text-xs text-red-600">Atendemos apenas endereços na Flórida (FL).</p>
+            </div>
+
+            <!-- Autocomplete simples (datalist) -->
+            <datalist id="floridaAddresses">
+              <option value="Orlando International Airport (MCO), Orlando, FL"></option>
+              <option value="Orlando Sanford International (SFB), Sanford, FL"></option>
+              <option value="Universal Orlando Resort, Orlando, FL"></option>
+              <option value="Disney Springs, Lake Buena Vista, FL"></option>
+              <option value="International Drive, Orlando, FL"></option>
+              <option value="Kissimmee, FL"></option>
+              <option value="Winter Park, FL"></option>
+              <option value="Lake Buena Vista, FL"></option>
+              <option value="Celebration, FL"></option>
+            </datalist>
+          </div>
+
+          <!-- Contato -->
+          <div class="grid grid-cols-2 gap-2 mt-3">
+            <div>
+              <label class="block text-sm text-gray-700 mb-1">E-mail</label>
+              <input id="fbEmail" type="email" class="w-full min-w-0 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500" placeholder="voce@email.com" />
+            </div>
+            <div>
+              <label class="block text-sm text-gray-700 mb-1">Celular (com DDI)</label>
+              <input id="fbWhatsapp" type="tel" class="w-full min-w-0 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500" placeholder="+55 11 99999-9999" />
+            </div>
+          </div>
+
+          <!-- Enviar -->
+          <button id="fbSubmit" class="w-full gold-bg navy-text font-bold py-3 px-4 rounded hover:bg-yellow-700 hover:text-white transition-all">Solicitar Reserva</button>
+          <p id="fbError" class="hidden text-sm text-red-600"></p>
+        </div>
+
+        <!-- Right: veículo + preço + benefícios -->
+        <div class="space-y-3 w-[90%]">
+          <div class="flex items-center p-3 bg-gray-50 rounded-xl border border-gray-100">
+            <img id="fbCarImg" src="" alt="Car" class="w-24 h-24 object-cover rounded-lg mr-4" />
+            <div class="min-w-0">
+              <h5 class="font-semibold navy-text truncate" id="fbCarModel">—</h5>
+              <div class="flex flex-wrap gap-x-3 text-gray-600 text-sm">
+                <span id="fbSeats"><i class="fas fa-users mr-1"></i> —</span>
+                <span id="fbLuggage"><i class="fas fa-suitcase mr-1"></i> —</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
+            <h4 class="font-semibold navy-text mb-3">Resumo de Preço</h4>
+            <div class="flex justify-between text-sm mb-2">
+              <span class="text-gray-600"><span id="fbDays">0</span> diária(s)</span>
+              <span class="font-semibold">$<span id="fbSubtotal">0</span>.00</span>
+            </div>
+            <div class="flex justify-between text-sm mb-2">
+              <span class="text-gray-600">Sem IOF</span><span class="font-semibold text-green-600">$0.00</span>
+            </div>
+            <div class="flex justify-between text-sm mb-2">
+              <span class="text-gray-600">Sem caução</span><span class="font-semibold text-green-600">$0.00</span>
+            </div>
+            <div class="border-t pt-2 mt-2 flex justify-between">
+              <span class="font-bold">Total</span>
+              <span class="font-bold text-xl gold-text">$<span id="fbTotal">0</span>.00</span>
+            </div>
+          </div>
+
+          <div class="p-4 rounded-xl border border-amber-200 bg-amber-50">
+            <h4 class="font-semibold text-amber-800 mb-3">Incluso na diária:</h4>
+            <ul class="space-y-2 text-sm text-amber-900">
+              <li>⛽ Tanque cheio; devolução igual ou taxa de US$ 50</li>
+              <li>👶 Cadeirinha de bebê</li>
+              <li>🛡️ Seguro completo (incluindo terceiros)</li>
+              <li>👥 Condutores adicionais sem custo</li>
+              <li>🚗 Sunpass</li>
+              <li>💳 Pagamento até 10x em moeda local</li>
+              <li>🛬 Carro estará pronto no local de retirada</li>
+              <li>☎️ Atendimento 24h em português</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Overlay de Processamento -->
+  <div id="bookingProcessingOverlay" class="fixed inset-0 hidden z-[100] grid place-items-center">
+    <div class="navy-bg-glass p-8 rounded-2xl text-center w-[min(92vw,420px)]">
+      <div class="mx-auto loader mb-5"></div>
+      <h3 class="text-xl font-semibold">Processando sua reserva…</h3>
+      <p class="text-white/80 mt-2 text-sm">
+        Em instantes vamos gerar o seu código e preparar a confirmação.
+      </p>
+    </div>
+  </div>
+
+  <!-- Modal: Reserva Processada -->
+  <div id="bookingProcessedModal" class="fixed inset-0 hidden z-[110] overflow-y-auto overscroll-contain">
+    <div class="absolute inset-0 bg-black/70 backdrop-blur-[2px]"></div>
+    <div class="relative z-10 min-h-full w-full flex items-center justify-center p-4">
+      
+      <div role="dialog" aria-modal="true" aria-labelledby="bookingProcessedTitle"
+        class="navy-surface-solid text-white w-[min(92vw,780px)] max-h-[90vh] md:max-h-[82vh] overflow-y-auto shadow-2xl">
+        <!-- Header -->
+        <div class="navy-bg px-6 py-5 flex items-center gap-4">
+          <div class="check-burst">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <path d="M20 6L9 17l-5-5" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div>
+            <h2 id="bookingProcessedTitle" class="text-2xl font-semibold">Reserva recebida!</h2>
+            <p class="text-white/80 text-sm">Tudo certo — geramos o seu código de acompanhamento.</p>
+          </div>
+          <button id="bpCloseX" aria-label="Fechar"
+                  class="ml-auto text-white/70 hover:text-white transition">
+            <i class="fa-solid fa-xmark text-xl"></i>
+          </button>
+        </div>
+
+        <!-- Corpo -->
+        <div class="p-6 grid md:grid-cols-5 gap-6">
+          <!-- Coluna principal -->
+          <div class="md:col-span-3 space-y-4">
+            <p class="text-white/90 leading-relaxed">
+              Você receberá <strong>a confirmação da reserva </strong> e entraremos em contato para a <strong>etapa final de pagamento</strong>.
+            </p>
+            <div class="bg-white/5 rounded-xl p-4 border border-white/10">
+              <div class="flex items-center gap-3">
+                <span class="text-white/70 text-sm">Seu código:</span>
+                <code id="bpCode" class="text-[13px] font-semibold tracking-wide bg-black/20 px-2.5 py-1.5 rounded">—</code>
+                <button id="bpCopy" class="ml-2 text-xs px-2.5 py-1.5 rounded bg-white/10 hover:bg-white/15 border border-white/10">
+                  Copiar
+                </button>
+              </div>
+              <p class="text-white/70 mt-2 text-sm">
+                Guarde este código para acompanhar sua reserva pelo site.
+              </p>
+            </div>
+
+            <!-- Linha do tempo -->
+            <div class="space-y-3">
+              <h3 class="font-semibold">Próximos passos</h3>
+              <ol class="text-sm space-y-2">
+                <li class="flex items-start gap-3">
+                  <span class="mt-1 text-emerald-400"><i class="fa-solid fa-circle-check"></i></span>
+                  <span>Recebemos sua solicitação <span class="text-white/60">(agora)</span></span>
+                </li>
+                <li class="flex items-start gap-3">
+                  <span class="mt-1 text-amber-300"><i class="fa-solid fa-hourglass-half"></i></span>
+                  <span>Validação de disponibilidade <span class="text-white/60">(até 1h)</span></span>
+                </li>
+                <li class="flex items-start gap-3">
+                  <span class="mt-1 text-sky-300"><i class="fa-solid fa-credit-card"></i></span>
+                  <span>Confirmação + link de pagamento</span>
+                </li>
+              </ol>
+            </div>
+
+            <div class="flex gap-3 pt-2 flex-wrap">
+              <a id="bpTrack" href="#" class="px-4 py-2 rounded-lg bg-white text-slate-900 font-medium hover:opacity-95">
+                Acompanhar minha reserva
+              </a>
+              <a id="bpICS" href="#" download="Minha-Reserva.ics"
+                 class="px-4 py-2 rounded-lg bg-white/10 border border-white/15 hover:bg-white/15">
+                Adicionar ao calendário
+              </a>
+              <button id="bpClose" class="px-4 py-2 rounded-lg bg-white/10 border border-white/15 hover:bg-white/15">
+                Voltar ao início
+              </button>
+            </div>
+          </div>
+
+          <!-- Coluna resumo -->
+          <aside class="md:col-span-2 space-y-3">
+            <h3 class="font-semibold">Resumo da reserva</h3>
+            <div class="bg-white/5 rounded-xl p-4 border border-white/10 text-sm space-y-2">
+              <div class="flex justify-between"><span class="text-white/70">Veículo</span><span id="bpVehicle"></span></div>
+              <div class="flex justify-between gap-3">
+                <span class="text-white/70">Retirada</span>
+                <span id="bpPickup" class="block text-right leading-tight max-w-[65%]"></span>
+              </div>
+              <div class="flex justify-between gap-3">
+                <span class="text-white/70">Devolução</span>
+                <span id="bpDropoff" class="block text-right leading-tight max-w-[65%]"></span>
+              </div>
+             <div class="flex justify-between"><span class="text-white/70">Extras</span><span id="bpExtras">—</span></div>
+              <div class="flex justify-between"><span class="text-white/70">Diária(s)</span><span id="bpDays"></span></div>
+              <div class="flex justify-between text-base font-semibold pt-2 border-t border-white/10">
+                <span>Total $</span><span id="bpTotal">—</span>
+              </div>
+            </div>
+
+            <div class="bg-white/5 rounded-xl p-4 border border-white/10 text-sm">
+              <div><span class="text-white/70">Confirmação enviada para</span> <span id="bpEmail"></span></div>
+              <div class="text-white/60 mt-1 text-xs">Você pode responder ao e-mail para qualquer ajuste.</div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Consulta de Reserva -->
+  <div id="bookingLookupModal" class="fixed inset-0 hidden z-[120] overflow-y-auto">
+    <div class="absolute inset-0 bg-black/70 backdrop-blur-[2px]"></div>
+    <div class="relative z-10 min-h-full w-full flex items-center justify-center p-4">
+      <div role="dialog" aria-modal="true" aria-labelledby="lookupTitle"
+           class="navy-surface-solid text-white w-[min(92vw,720px)] max-h-[88vh] overflow-y-auto rounded-2xl shadow-2xl">
+        <div class="navy-bg px-6 py-5 flex items-center gap-4">
+          <div class="check-burst" aria-hidden="true">
+            <i class="fa-solid fa-magnifying-glass"></i>
+          </div>
+          <div>
+            <h2 id="lookupTitle" class="text-2xl font-semibold">Consultar reserva</h2>
+            <p class="text-white/80 text-sm">Use o seu código (ex.: MLC-ORL-2025-09-08-AB27)</p>
+          </div>
+          <button id="lookupCloseX" class="ml-auto text-white/70 hover:text-white" aria-label="Fechar">
+            <i class="fa-solid fa-xmark text-xl"></i>
+          </button>
+        </div>
+
+        <div class="p-6 space-y-4">
+          <div class="flex flex-col sm:flex-row gap-3">
+            <input id="lookupCode" type="text" inputmode="latin"
+                   class="w-full bg-white/10 border border-white/15 rounded-lg px-4 py-2.5 placeholder-white/50"
+                   placeholder="Digite seu código de reserva">
+            <button id="lookupBtn" class="navy-bg text-white rounded-lg px-5 py-2.5">Consultar</button>
+          </div>
+
+          <div id="lookupResult" class="hidden">
+            <h3 class="text-lg font-semibold">Resultado</h3>
+            <div class="bg-white/5 rounded-xl p-4 border border-white/10 text-sm space-y-2">
+              <div class="flex justify-between gap-3">
+                <span class="text-white/70">Código</span><span id="lrCode" class="font-medium text-right"></span>
+              </div>
+              <div class="flex justify-between gap-3">
+                <span class="text-white/70">Veículo</span><span id="lrVehicle" class="text-right max-w-[65%]"></span>
+              </div>
+              <div class="flex justify-between gap-3">
+                <span class="text-white/70">Retirada</span>
+                <span id="lrPickup" class="block text-right leading-tight max-w-[65%]"></span>
+              </div>
+              <div class="flex justify-between gap-3">
+                <span class="text-white/70">Devolução</span>
+                <span id="lrDropoff" class="block text-right leading-tight max-w-[65%]"></span>
+              </div>
+              <div class="flex justify-between gap-3">
+                <span class="text-white/70">Extras</span><span id="lrExtras" class="text-right max-w-[65%]"></span>
+              </div>
+              <div class="flex justify-between gap-3">
+                <span class="text-white/70">Dias</span><span id="lrDays" class="text-right"></span>
+              </div>
+              <div class="flex justify-between gap-3 text-base font-semibold pt-2 border-t border-white/10">
+                <span>Total</span><span id="lrTotal" class="text-right"></span>
+              </div>
+              <div class="flex justify-between gap-3">
+                <span class="text-white/70">E-mail</span><span id="lrEmail" class="text-right max-w-[65%]"></span>
+              </div>
+            </div>
+          </div>
+
+          <div id="lookupEmpty" class="text-white/70 text-sm">
+            Digite o código acima e clique em “Consultar”.
+          </div>
+
+          <div id="lookupError" class="hidden text-rose-300 text-sm">
+            Não encontramos nenhuma reserva com esse código. Verifique e tente novamente.
+          </div>
+
+          <div class="pt-2">
+            <button id="lookupClose" class="px-4 py-2 rounded-lg bg-white/10 border border-white/15 hover:bg-white/15">
+              Fechar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  
+  <script>
         // Close modal
         function closeModal() {
             document.getElementById('availabilityModal').classList.add('hidden');
@@ -1004,12 +1585,6 @@
           }
           document.body.style.overflow = ''; // libera scroll do body
         }
-
-        // Mobile menu toggle (would need more implementation)
-        document.querySelector('.md\\:hidden').addEventListener('click', function() {
-            // This would toggle a mobile menu in a full implementation
-            alert('Mobile menu would open here in a full implementation');
-        });
 
           const modal = document.getElementById('benefitsModal');
 
@@ -1296,7 +1871,7 @@
               mode: 'range',
               minDate: 'today',
               dateFormat: 'Y-m-d',
-              weekNumbers: true,
+              weekNumbers: false,
               onChange: function (selectedDates) {
                 // quando tiver 2 datas, preenche campos
                 if (selectedDates.length === 2) {
@@ -1321,6 +1896,536 @@
             });
           }
 
-    </script>
+        // ==== FULL BOOKING (novo) ====
+        let __fbDailyPrice = 0;
+        let __fbCar = { id:'', model:'', img:'', seats:'', luggage:'' };
+        let __fbFP; let __fbTimePick; let __fbTimeDrop;
+
+        function openFullBooking(btn){
+          // dados do carro
+          __fbDailyPrice = Number(btn.dataset.price || 0);
+          __fbCar = {
+            id: btn.dataset.id || '',
+            model: btn.dataset.model || 'Vehicle',
+            img: btn.dataset.img || '',
+            seats: btn.dataset.seats || '-',
+            luggage: btn.dataset.luggage || '-'
+          };
+
+          document.getElementById('fbCarModel').innerHTML = `${__fbCar.model}` ;
+          document.getElementById('fbCarImg').src = __fbCar.img;
+          document.getElementById('fbSeats').innerHTML = `<i class='fas fa-users mr-1'></i> ${__fbCar.seats} assentos`;
+          document.getElementById('fbLuggage').innerHTML = `<i class='fas fa-suitcase mr-1'></i> ${__fbCar.luggage} malas`;
+
+          // reset
+          setFBText('fbPickupDate',''); setFBText('fbDropoffDate','');
+          setFBText('fbDays','0'); setFBText('fbSubtotal','0'); setFBText('fbTotal','0');
+          document.getElementById('fbPickupAddr').value = '';
+          document.getElementById('fbDropoffAddr').value = '';
+          document.getElementById('fbEmail').value = '';
+          document.getElementById('fbWhatsapp').value = '';
+
+          // abre
+          const m = document.getElementById('fullBookingModal');
+          m.classList.remove('hidden'); m.classList.add('flex');
+          document.body.style.overflow = 'hidden';
+          m.scrollTo(0,0);
+
+          initFullBookingCalendars();
+        }
+
+        function closeFullBooking(){
+          const m = document.getElementById('fullBookingModal');
+          m.classList.add('hidden'); m.classList.remove('flex');
+          document.body.style.overflow = '';
+        }
+
+        function initFullBookingCalendars(){
+          const cal = document.getElementById('fbDateCalendar');
+          if(!cal) return;
+
+          // destroy anteriores
+          if(__fbFP && __fbFP.destroy) __fbFP.destroy();
+          if(__fbTimePick && __fbTimePick.destroy) __fbTimePick.destroy();
+          if(__fbTimeDrop && __fbTimeDrop.destroy) __fbTimeDrop.destroy();
+
+          // calendário inline range (datas)
+          __fbFP = flatpickr(cal, {
+            inline: true,
+            mode: 'range',
+            minDate: 'today',
+            dateFormat: 'Y-m-d',
+            weekNumbers: false,
+            showMonths: 1,
+            onChange(selected){
+              if(selected.length === 2){
+                const [start, end] = selected;
+                const pu  = start.toISOString().slice(0,10);
+                const dof = end.toISOString().slice(0,10);
+                setFBText('fbPickupDate', formatDisplay(pu));
+                setFBText('fbDropoffDate', formatDisplay(dof));
+                calcFBPrice(start, end);
+              }
+            }
+          });
+
+          // horários (time-only)
+          __fbTimePick = flatpickr('#fbPickupTime', { enableTime:true, noCalendar:true, dateFormat:'H:i', time_24hr:true, defaultDate:'09:00' });
+          __fbTimeDrop = flatpickr('#fbDropoffTime', { enableTime:true, noCalendar:true, dateFormat:'H:i', time_24hr:true, defaultDate:'18:00' });
+
+          // validação Florida (FL)
+          const onlyFL = (val) => /(,\s*FL\b|Florida\b)/i.test(val || '');
+          const pickup = document.getElementById('fbPickupAddr');
+          const dropof = document.getElementById('fbDropoffAddr');
+          const pwarn  = document.getElementById('fbPickupWarn');
+          const dwarn  = document.getElementById('fbDropoffWarn');
+          const check  = (el, warn) => {
+            if(!el.value){ warn.classList.add('hidden'); return true; }
+            const ok = onlyFL(el.value);
+            warn.classList.toggle('hidden', ok);
+            return ok;
+          };
+          ['input','blur','change'].forEach(evt=>{
+            pickup.addEventListener(evt, ()=>check(pickup,pwarn));
+            dropof.addEventListener(evt, ()=>check(dropof,dwarn));
+          });
+
+          // submit
+          document.getElementById('fbSubmit').onclick = () => {
+            const err = document.getElementById('fbError');
+            err.classList.add('hidden'); err.textContent = '';
+
+            const okFL  = onlyFL(pickup.value) && onlyFL(dropof.value);
+            const days  = Number(document.getElementById('fbDays').textContent || '0');
+            const email = (document.getElementById('fbEmail').value || '').trim();
+            const wa    = (document.getElementById('fbWhatsapp').value || '').trim();
+
+            if(!days){ err.textContent = 'Selecione as datas de retirada e devolução.'; err.classList.remove('hidden'); return; }
+            if(!okFL){ err.textContent = 'Atendemos apenas endereços na Flórida (FL).'; err.classList.remove('hidden'); return; }
+            if(!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ err.textContent='Informe um e-mail válido.'; err.classList.remove('hidden'); return; }
+            if(!wa || !/^\+?\d[\d\s().-]{6,}$/.test(wa)){ err.textContent='Informe um Número válido (com DDI).'; err.classList.remove('hidden'); return; }
+
+            const text = encodeURIComponent(
+      `Solicitação de reserva
+      Carro: ${__fbCar.model}
+      Retirada: ${document.getElementById('fbPickupDate').value} ${document.getElementById('fbPickupTime').value} - ${pickup.value}
+      Devolução: ${document.getElementById('fbDropoffDate').value} ${document.getElementById('fbDropoffTime').value} - ${dropof.value}
+      Diárias: ${days}
+      Total: $${document.getElementById('fbTotal').textContent}.00
+      Email: ${email}
+      WhatsApp: ${wa}`
+            );
+            const waUrl = `https://wa.me/+5511987195105?text=${text}`; 
+            //window.open(waUrl, '_blank');
+            closeFullBooking();
+          };
+        }
+
+        function setFBText(id, val){
+          const el = document.getElementById(id);
+          if(!el) return;
+          if('value' in el) el.value = val; else el.textContent = val;
+        }
+
+        function calcFBPrice(start, end){
+          const ms = 86400000;
+          const days = Math.max(1, Math.round((end - start) / ms));
+          setFBText('fbDays', String(days));
+          const sub = days * __fbDailyPrice;
+          setFBText('fbSubtotal', String(sub));
+          setFBText('fbTotal',    String(sub));
+        }
+
+    /** UTIL: mostrar/ocultar */
+    function show(el){ el.classList.remove('hidden'); }
+    function hide(el){ el.classList.add('hidden'); }
+
+    /** Gera código de reserva: MLC-ORL-YYYY-MM-DD-AB12 */
+    function generateBookingCode(hub = 'ORL'){
+      const d = new Date();
+      const pad = n => String(n).padStart(2,'0');
+      const y = d.getFullYear(), m = pad(d.getMonth()+1), day = pad(d.getDate());
+      const rand = Math.random().toString(36).slice(-4).toUpperCase();
+      return `MLC-${hub}-${y}-${m}-${day}-${rand}`;
+    }
+
+    /** Mascara e-mail: mario@gmail.com -> m***@gmail.com */
+    function maskEmail(email=''){
+      if(!email || !email.includes('@')) return '—';
+      const [u, domain] = email.split('@');
+      const visible = u.slice(0,1);
+      return `${visible}${'*'.repeat(Math.max(1, u.length-1))}@${domain}`;
+    }
+
+    /** Lê dados do UI de forma resiliente ao baseline */
+    function collectBookingFromUI(){
+      const $ = sel => document.querySelector(sel);
+      const vehicle = (document.getElementById('fbCarModel')?.textContent || '—').trim();
+
+      // Datas: tenta flatpickr global (se você nomeou como fbRangePicker), senão lê input/valor
+      let pickupDate='—', dropoffDate='—';
+      const fp = window.fbRangePicker; // se existir
+      if (fp && fp.selectedDates && fp.selectedDates.length >= 1){
+        const d0 = fp.selectedDates[0];
+        const d1 = fp.selectedDates[1] || fp.selectedDates[0];
+        const fmt = d => `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+        pickupDate = fmt(d0); dropoffDate = fmt(d1);
+      } else {
+        const raw = $('#fbDateCalendar')?.value || $('#fbDateInput')?.value || '';
+        if (raw.includes('to')) {
+          const [a,b] = raw.split('to').map(s=>s.trim());
+          pickupDate = a || ''; dropoffDate = b || '';
+        } else if (raw.includes('até')) {
+          const [a,b] = raw.split('até').map(s=>s.trim());
+          pickupDate = a || ''; dropoffDate = b || '';
+        }
+      }
+
+      const pickupTime = $('#fbPickupTime')?.value || '—';
+      const dropoffTime = $('#fbDropoffTime')?.value || '—';
+      const pickupLoc  = $('#fbPickupAddr')?.value || $('#fbPickupLoc')?.textContent || '—';
+      const dropoffLoc = $('#fbDropoffAddr')?.value || $('#fbDropoffLoc')?.textContent || '—';
+
+      const extras = Array.from(document.querySelectorAll('[data-extra-selected="true"]'))
+                     .map(el => el.getAttribute('data-extra-name')).filter(Boolean).join(', ') || '—';
+
+      const days = $('#fbDays')?.textContent?.trim() || '—';
+      const total = $('#fbTotal')?.textContent?.trim() || $('#fbSubtotal')?.textContent?.trim() || '—';
+
+      const name  = $('#fbCustomerName')?.value || $('#customerName')?.value || '—';
+      const email = $('#fbEmail')?.value || $('#customerEmail')?.value || '—';
+
+      return {
+        vehicle, pickupDate, dropoffDate, pickupTime, dropoffTime,
+        pickupLocation: pickupLoc, dropoffLocation: dropoffLoc,
+        extras, days, total,
+        fullName: name, email
+      };
+    }
+
+    /** Salva no localStorage (pendente) */
+    function savePendingBooking(obj){
+      try {
+        const key = 'pendingBookings';
+        const list = JSON.parse(localStorage.getItem(key) || '[]');
+        list.unshift({ ...obj, createdAt: new Date().toISOString() });
+        localStorage.setItem(key, JSON.stringify(list.slice(0,10))); // guarda últimas 10
+      } catch(e){ /* ignore */ }
+    }
+
+    /** Gera arquivo ICS (evento) e retorna URL para download */
+    function buildICS(booking){
+      // Monta datas no formato YYYYMMDDTHHMMSS (sem fuso, suficiente)
+      function parseDDMMYYYY(s){ const [dd,mm,yy] = s.split('/'); return {dd,mm,yy}; }
+      function HHMMToHHMM(hhmm){ const [h,m] = (hhmm||'00:00').split(':'); return {h: (h||'00').padStart(2,'0'), m:(m||'00').padStart(2,'0')}; }
+
+      const pD = parseDDMMYYYY(booking.pickupDate||'01/01/2025');
+      const dD = parseDDMMYYYY(booking.dropoffDate||booking.pickupDate||'01/01/2025');
+      const pT = HHMMToHHMM(booking.pickupTime||'10:00');
+      const dT = HHMMToHHMM(booking.dropoffTime||'10:00');
+
+      const dtStart = `${pD.yy}${pD.mm}${pD.dd}T${pT.h}${pT.m}00`;
+      const dtEnd   = `${dD.yy}${dD.mm}${dD.dd}T${dT.h}${dT.m}00`;
+
+      const summary = `Reserva ${booking.vehicle} • MyLuxCars`;
+      const location = `${booking.pickupLocation||''} → ${booking.dropoffLocation||''}`.trim();
+      const notes = `Código: ${booking.code}\nDias: ${booking.days}\nTotal: ${booking.total}\nExtras: ${booking.extras || '-'}`;
+
+      const ics =
+    `BEGIN:VCALENDAR
+    VERSION:2.0
+    PRODID:-//MYLUXCARS//Booking//PT-BR
+    CALSCALE:GREGORIAN
+    BEGIN:VEVENT
+    UID:${booking.code}@myluxcars
+    DTSTAMP:${dtStart}
+    DTSTART:${dtStart}
+    DTEND:${dtEnd}
+    SUMMARY:${summary}
+    LOCATION:${location}
+    DESCRIPTION:${notes.replace(/\n/g,'\\n')}
+    END:VEVENT
+    END:VCALENDAR`;
+
+      const blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
+      return URL.createObjectURL(blob);
+    }
+
+    /** Abre o modal preenchendo os campos */
+    function openBookingProcessedModal(data){
+      const $ = sel => document.querySelector(sel);
+      $('#bpCode').textContent = data.code;
+      $('#bpVehicle').textContent = data.vehicle;
+
+      // PICKUP (com <br>)
+      const p = $('#bpPickup');
+      p.textContent = `${data.pickupDate} às ${data.pickupTime} `;
+      p.appendChild(document.createElement('br'));
+      p.append(data.pickupLocation);
+
+      // DROPOFF (com <br>)
+      const d = $('#bpDropoff');
+      d.textContent = `${data.dropoffDate} às ${data.dropoffTime} `;
+      d.appendChild(document.createElement('br'));
+      d.append(data.dropoffLocation);
+
+      $('#bpExtras').textContent  = data.extras;
+      $('#bpDays').textContent    = data.days;
+      $('#bpTotal').textContent   = data.total;
+      $('#bpEmail').textContent   = maskEmail(data.email);
+
+      // Link de acompanhamento (pode apontar para /reserva?code=...)
+      const trackUrl = `/reserva?code=${encodeURIComponent(data.code)}`;
+      const icsUrl = buildICS(data);
+
+      $('#bpTrack').setAttribute('href', trackUrl);
+      $('#bpICS').setAttribute('href', icsUrl);
+
+      // Abrir
+      show(document.getElementById('bookingProcessedModal'));
+      // Foco acessível no título
+      setTimeout(()=> document.getElementById('bookingProcessedTitle')?.focus(), 10);
+    }
+
+    /** Fluxo: botão Confirmar -> overlay -> modal final */
+    async function startBookingProcessedFlow(){
+      const btn = document.getElementById('fbSubmit');
+      if (btn){ btn.disabled = true; btn.classList.add('opacity-70','cursor-not-allowed'); }
+
+      show(document.getElementById('bookingProcessingOverlay'));
+
+      // Coleta dados + gera código
+      const booking = collectBookingFromUI();
+      booking.code = generateBookingCode('ORL');
+
+      // Grava a reserva 
+      await persistBooking(booking);
+      
+      // Guarda localmente (para recuperar depois)
+      savePendingBooking(booking);
+
+      // Simula processamento (1.6s)
+      await new Promise(r => setTimeout(r, 1600));
+
+      hide(document.getElementById('bookingProcessingOverlay'));
+      openBookingProcessedModal(booking);
+
+      if (btn){ btn.disabled = false; btn.classList.remove('opacity-70','cursor-not-allowed'); }
+
+      // (Opcional) Feche o modal de booking se estiver aberto:
+      try { document.getElementById('fullBookingModal')?.classList.add('hidden'); } catch(e){}
+    }
+
+    /** Copiar código */
+    function copyText(text){
+      if (!navigator.clipboard) {
+        const ta = document.createElement('textarea');
+        ta.value = text; document.body.appendChild(ta); ta.select();
+        document.execCommand('copy'); ta.remove(); return;
+      }
+      navigator.clipboard.writeText(text).catch(()=>{});
+    }
+
+    /** Bind dos botões do modal final */
+    (function initProcessedModal(){
+      const $ = sel => document.querySelector(sel);
+      $('#bpCopy')?.addEventListener('click', ()=>{
+        const code = document.getElementById('bpCode').textContent.trim();
+        copyText(code);
+        // micro-toast
+        const t = document.createElement('div');
+        t.textContent = 'Código copiado!';
+        t.className = 'fixed bottom-4 left-1/2 -translate-x-1/2 bg-black/80 text-white px-3 py-1.5 rounded-lg text-sm z-[120]';
+        document.body.appendChild(t);
+        setTimeout(()=> t.remove(), 1800);
+      });
+      const closeAll = ()=>{
+        hide(document.getElementById('bookingProcessedModal'));
+        // Scroll topo
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      };
+      $('#bpClose')?.addEventListener('click', closeAll);
+      $('#bpCloseX')?.addEventListener('click', closeAll);
+
+      // Escape fecha
+      document.addEventListener('keydown', (e)=>{
+        if (e.key === 'Escape') hide(document.getElementById('bookingProcessedModal'));
+      });
+    })();
+
+    /** Conecta o fluxo ao seu botão de confirmar da reserva (fbSubmit) */
+    (function hookConfirmButton(){
+      const btn = document.getElementById('fbSubmit');
+      if (!btn) return;
+      btn.addEventListener('click', function(e){
+        e.preventDefault(); // impede submit padrão / WhatsApp
+        startBookingProcessedFlow();
+      });
+    })();
+
+    (function(){
+      const btn = document.getElementById('mobileMenuBtn');
+      const menu = document.getElementById('mobileMenu');
+      const overlay = document.getElementById('mobileMenuOverlay');
+      const closeBtn = document.getElementById('mobileMenuClose');
+
+      function openMenu(){
+        menu.classList.remove('hidden');
+        document.documentElement.classList.add('overflow-hidden');
+        btn?.setAttribute('aria-expanded','true');
+      }
+      function closeMenu(){
+        menu.classList.add('hidden');
+        document.documentElement.classList.remove('overflow-hidden');
+        btn?.setAttribute('aria-expanded','false');
+      }
+
+      btn?.addEventListener('click', openMenu);
+      overlay?.addEventListener('click', closeMenu);
+      closeBtn?.addEventListener('click', closeMenu);
+
+      // Fechar ao clicar num link
+      menu.querySelectorAll('a[href^="#"]').forEach(a=>{
+        a.addEventListener('click', closeMenu);
+      });
+
+      // ESC fecha
+      document.addEventListener('keydown', (e)=>{
+        if (e.key === 'Escape' && !menu.classList.contains('hidden')) closeMenu();
+      });
+    })();
+
+
+    /* === UTIL de modal === */
+    function show(el){ el.classList.remove('hidden'); }
+    function hide(el){ el.classList.add('hidden'); }
+
+    /* === 3.A Abrir/fechar modal de consulta === */
+    (function initLookupModal(){
+      const btn = document.getElementById('navLookup');
+      const btnMobile = document.getElementById('mobileLookupLink');
+      const modal = document.getElementById('bookingLookupModal');
+      const closeBtn = document.getElementById('lookupClose');
+      const closeX = document.getElementById('lookupCloseX');
+
+      function open(){ show(modal); document.documentElement.classList.add('overflow-hidden'); }
+      function close(){ hide(modal); document.documentElement.classList.remove('overflow-hidden'); }
+
+      btn?.addEventListener('click', (e)=>{ e.preventDefault(); open(); });
+      btnMobile?.addEventListener('click', (e)=>{ e.preventDefault(); open(); });
+      closeBtn?.addEventListener('click', close);
+      closeX?.addEventListener('click', close);
+      modal.addEventListener('click', (e)=>{ if(e.target === modal) close(); });
+      document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') close(); });
+    })();
+
+    /* === 3.B Persistência: front agora, backend quando existir === */
+    async function persistBooking(booking){
+      // LocalStorage (sempre)
+      try {
+        const key = 'bookings';
+        const list = JSON.parse(localStorage.getItem(key) || '[]');
+        // se já existir com o mesmo code, substitui
+        const idx = list.findIndex(b => b.code === booking.code);
+        if (idx >= 0) list[idx] = booking; else list.unshift(booking);
+        localStorage.setItem(key, JSON.stringify(list.slice(0,200)));
+      } catch (e) {}
+
+      // Backend (opcional): tenta POST /api/bookings; se 404, ignora
+      try {
+        await fetch('/api/bookings', {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify(booking)
+        });
+      } catch (e) {
+        // sem backend, tudo bem
+      }
+    }
+
+    /* === 3.C Consulta por código === */
+    async function lookupBookingByCode(code){
+      code = String(code||'').trim();
+      if (!code) return null;
+
+      // 1) Tenta backend GET /api/bookings/:code
+      try {
+        const r = await fetch(`/api/bookings/${encodeURIComponent(code)}`, { cache:'no-store' });
+        if (r.ok) {
+          const data = await r.json();
+          if (data && data.code) return data;
+        }
+      } catch(e){ /* ignora, tenta local */ }
+
+      // 2) Tenta ler do bookings.json estático
+      try {
+        const r = await fetch('/bookings.json', { cache: 'no-store' });
+        if (r.ok) {
+          const arr = await r.json();
+          if (Array.isArray(arr)) {
+            const found = arr.find(b => String(b.code).toUpperCase() === code.toUpperCase());
+            if (found) return found;
+          }
+        }
+      } catch (e) { /* ignora se não existir */ }
+      
+      // 3) Fallback: LocalStorage
+      try {
+        const list = JSON.parse(localStorage.getItem('bookings') || '[]');
+        return list.find(b => b.code === code) || null;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    /* === 3.D UI da consulta === */
+    (function initLookupUI(){
+      const $ = (s)=>document.querySelector(s);
+      const input = $('#lookupCode');
+      const btn = $('#lookupBtn');
+      const boxResult = $('#lookupResult');
+      const boxEmpty = $('#lookupEmpty');
+      const boxErr = $('#lookupError');
+
+      function setBr(el, top, bottom){
+        el.textContent = ''; 
+        el.append(document.createTextNode(top + ' '), document.createElement('br'), document.createTextNode(bottom));
+      }
+
+      btn?.addEventListener('click', async ()=>{
+        boxErr.classList.add('hidden');
+        boxResult.classList.add('hidden');
+        boxEmpty.classList.add('hidden');
+
+        const code = input.value.trim();
+        const data = await lookupBookingByCode(code);
+        if (!data){
+          boxErr.classList.remove('hidden');
+          return;
+        }
+
+        // Preenche resultado
+        $('#lrCode').textContent = data.code;
+        $('#lrVehicle').textContent = data.vehicle || '—';
+        setBr($('#lrPickup'), `${data.pickupDate} às ${data.pickupTime}`, data.pickupLocation || '—');
+        setBr($('#lrDropoff'), `${data.dropoffDate} às ${data.dropoffTime}`, data.dropoffLocation || '—');
+        $('#lrExtras').textContent = data.extras || '—';
+        $('#lrDays').textContent = data.days || '—';
+        $('#lrTotal').textContent = data.total || '—';
+        $('#lrEmail').textContent = data.email || '—';
+
+        boxResult.classList.remove('hidden');
+      });
+    })();
+
+    /* === 3.E Integração: salve quando GERAR a reserva ===
+       Chame persistBooking(booking) logo após gerar o objeto no seu fluxo “processado”.
+       EXEMPLO dentro do seu startBookingProcessedFlow():
+    */
+    window.__saveBookingAfterProcessed = async function(booking){
+      try { await persistBooking(booking); } catch(e){}
+    };
+
+  </script>
 </body>
 </html>
